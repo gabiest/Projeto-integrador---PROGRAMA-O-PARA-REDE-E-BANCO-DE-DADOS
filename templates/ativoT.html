@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Ativos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Hosts Logo" class="logo-img">
+            </div>
+            
+           <nav class="menu">
+    <ul>
+        <li class="menu-item {% if active_page == 'dashboard_page' %}active{% endif %}">
+            <a href="{{ url_for('dashboard_page') }}">
+                <i class="fas fa-th-large"></i> 
+                <span>Dashboard</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'ativos_online_page' %}active{% endif %}">
+            <a href="{{ url_for('ativos_online_page') }}">
+                <i class="fas fa-check-circle"></i>
+                <span>Ativos Online</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'ativos_totais_page' %}active{% endif %}">
+            <a href="{{ url_for('ativos_totais_page') }}">
+                <i class="fas fa-server"></i>
+                <span>Ativos Totais</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'configuracoes_page' %}active{% endif %}">
+            <a href="{{ url_for('configuracoes_page') }}">
+                <i class="fas fa-cog"></i> 
+                <span>Configurações</span>
+            </a>
+        </li>
+        
+        <li class="menu-item logout {% if active_page == 'index' %}active{% endif %}">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="main-container-wrapper">
+                
+                <header class="top-header">
+                    <div></div> 
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <img src="{{ url_for('static', filename='avatar.png') }}" alt="Perfil" class="avatar-placeholder">
+                    </div>
+                </header>
+
+                <div class="dashboard-body ativos-gerenciamento">
+                    
+                    <div class="flash-messages">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    
+                    <div class="page-header">
+                        <h1>Gerenciamento de Ativos</h1>
+                        <button class="btn btn-primary" style="margin:20px;margin-left: 0px;" onclick="alert('Abrir Modal de Adição')">
+                            <i class="fas fa-plus"></i> Adicionar Ativo
+                        </button>
+                    </div>
+                   
+
+
+                    <form method="GET" action="{{ url_for('ativos_totais_page') }}" class="section filter-bar">
+                        <div class="search-group">
+                            <button type="submit" style="background: none; border: none; cursor: pointer; position: absolute; left: 10px; top: 35%; transform: translateY(-50%); padding: 0;">
+                                <i class="fas fa-search search-icon" style="left: 0; color: var(--color-text-medium);"></i>
+                            </button>
+                            <input type="text" 
+                                   name="q" 
+                                   placeholder="Buscar por Nome, IP ou MAC" 
+                                   class="search-input-lg"
+                                   value="{{ request.args.get('q', '') }}">
+                        </div>
+                        
+                        <div class="select-group">
+                            <select class="custom-select" name="status_filter" onchange="this.form.submit()">
+                                <option value="" {% if not request.args.get('status_filter') or request.args.get('status_filter') == 'todos' %}selected{% endif %}>Status: Todos</option>
+                                <option value="online" {% if request.args.get('status_filter') == 'online' %}selected{% endif %}>Online</option>
+                                <option value="offline" {% if request.args.get('status_filter') == 'offline' %}selected{% endif %}>Offline</option>
+                            </select>
+                            
+                            <select class="custom-select" name="type_filter" onchange="this.form.submit()">
+                                <option value="" {% if not request.args.get('type_filter') or request.args.get('type_filter') == 'todos' %}selected{% endif %}>Tipo: Todos</option>
+                                <option value="servidor" {% if request.args.get('type_filter') == 'servidor' %}selected{% endif %}>Servidor</option>
+                                <option value="impressora" {% if request.args.get('type_filter') == 'impressora' %}selected{% endif %}>Impressora</option>
+                                <option value="desktop" {% if request.args.get('type_filter') == 'desktop' %}selected{% endif %}>Desktop</option>
+                            </select>
+                            
+                            <a href="{{ url_for('ativos_totais_page') }}" class="btn btn-secondary" style="padding: 10px 15px;">Limpar</a>
+                            
+                            <button type="submit" style="display: none;">Aplicar</button> 
+                        </div>
+                    </form>
+
+
+                    <div class="section table-section">
+                        <div class="section-header">
+                            <h2>Lista de Ativos ({{ ativos_list | length }} Encontrados)</h2>
+                            <a href="{{ url_for('export_csv') }}" class="btn btn-secondary"><i class="fas fa-file-export"></i> Exportar CSV</a>
+                        </div>
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Status</th>
+                                    <th>Endereço IP</th>
+                                    <th>MAC</th>
+                                    <th>Tipo</th>
+                                    <th class="crud-actions-header">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for active in ativos_list %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ active.name }}</td>
+                                    <td><span class="status-badge status-{{ active.status | lower }}">{{ active.status | upper }}</span></td>
+                                    <td>{{ active.ip_address }}</td>
+                                    <td>{{ active.mac_address }}</td>
+                                    <td>{{ active.hostname or 'N/A' }}</td>
+                                    <td>{{ active.device_type or 'N/A' }}</td>
+                                    <td class="crud-actions">
+                                        <button class="btn-action btn-edit" title="Editar"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action btn-delete" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                
+                                {% if not ativos_list %}
+                                <tr>
+                                    <td colspan="8" style="text-align: center;">Nenhum ativo corresponde aos filtros.</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                        {% if total_items > items_per_page %}
+                            <div class="pagination-footer">
+                                <span>Mostrando {{ ativos_list | length }} de {{ total_items }} Registros</span>
+                                <div class="pagination-controls">
+                                    
+                                    <a href="{{ url_for('ativos_totais_page', page=page - 1, q=request.args.get('q'), status_filter=request.args.get('status_filter'), type_filter=request.args.get('type_filter')) }}" 
+                                    {% if page == 1 %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                                    &lt; Prev
+                                    </a>
+                                    
+                                    <a href="#" class="page-active">{{ page }}</a>
+                                    
+                                    <a href="{{ url_for('ativos_totais_page', page=page + 1, q=request.args.get('q'), status_filter=request.args.get('status_filter'), type_filter=request.args.get('type_filter')) }}"
+                                    {% if (page * items_per_page) >= total_items %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                                    Next &gt;
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

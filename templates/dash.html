@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosts Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Hosts Logo" class="logo-img">
+            </div>
+            
+          <nav class="menu">
+    <ul>
+        <li class="menu-item {% if active_page == 'dashboard_page' %}active{% endif %}">
+            <a href="{{ url_for('dashboard_page') }}">
+                <i class="fas fa-th-large"></i> 
+                <span>Dashboard</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'ativos_online_page' %}active{% endif %}">
+            <a href="{{ url_for('ativos_online_page') }}">
+                <i class="fas fa-check-circle"></i>
+                <span>Ativos Online</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'ativos_totais_page' %}active{% endif %}">
+            <a href="{{ url_for('ativos_totais_page') }}">
+                <i class="fas fa-server"></i>
+                <span>Ativos Totais</span>
+            </a>
+        </li>
+        
+        <li class="menu-item {% if active_page == 'configuracoes_page' %}active{% endif %}">
+            <a href="{{ url_for('configuracoes_page') }}">
+                <i class="fas fa-cog"></i> 
+                <span>Configurações</span>
+            </a>
+        </li>
+        
+        <li class="menu-item logout {% if active_page == 'index' %}active{% endif %}">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="main-container-wrapper">
+                
+                <header class="top-header">
+                    <div></div> 
+                    
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <img src="{{ url_for('static', filename='avatar.png') }}" alt="Perfil" class="avatar-placeholder">
+                    </div>
+                </header>
+
+                <div class="dashboard-body">
+                    
+                    <div class="flash-messages">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    
+                    <h1>Dashboard</h1>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <p class="card-title">Ativos Online</p>
+                            <div class="metric-value">
+                                <span class="value">{{ data.ativos_online }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <p class="card-title">Ativos Offline</p>
+                            <div class="metric-value">
+                                <span class="value">{{ data.ativos_offline }}</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <p class="card-title">Ativos Totais</p>
+                            <div class="metric-value">
+                                <span class="value">{{ data.ativos_totais }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-and-summary-grid">
+                        <div class="section chart-analytics">
+                            <div class="section-header">
+                                <h2>Contagem de Status (Semana)</h2>
+                            </div>
+                            <div id="status-chart" style="height: 320px;"></div> 
+                            <script id="graph-data" type="application/json">
+                                {{ graphJSON | safe }}
+                            </script>
+                        </div>
+
+                        <div class="section donut-chart-summary">
+                            <div class="section-header">
+                                <h2>Status Geral</h2>
+                            </div>
+                            <div class="donut-content">
+                                <div class="donut-chart-placeholder">
+                                    <span class="donut-value">80%</span>
+                                    <span class="donut-label">ONLINE</span>
+                                </div>
+                                <div class="donut-legend">
+                                    <div class="legend-item"><span class="legend-color legend-blue"></span> {{ data.ativos_online }} Online</div>
+                                    <div class="legend-item"><span class="legend-color legend-pink"></span> {{ data.ativos_offline }} Offline</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                 
+                            </thead>
+                          
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        var graphDataElement = document.getElementById('graph-data');
+        if (graphDataElement) {
+            var graphJSONText = graphDataElement.textContent || graphDataElement.innerText;
+            try {
+                var graphData = JSON.parse(graphJSONText);
+                Plotly.react('status-chart', graphData.data, graphData.layout);
+            } catch (e) {
+                console.error("Erro ao carregar gráfico:", e);
+            }
+        }
+    </script>
+</body>
+</html>
