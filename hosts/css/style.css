@@ -360,7 +360,600 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff; /* cor do texto da porcentagem */
+    color: #442875; /* cor do texto da porcentagem */
     font-weight: bold;
 }
 
+/* ... seu código CSS existente termina aqui ... */
+
+/* --- NOVOS ESTILOS PARA INVENTÁRIO --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-add {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(to right, var(--secondary-purple), var(--primary-purple));
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-add:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(144, 57, 212, 0.4);
+}
+
+.search-container {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    border-radius: 10px;
+    background-color: var(--bg-light);
+    border: 1px solid var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+}
+.search-container input:focus {
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(144, 57, 212, 0.3);
+}
+
+.search-container i {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.action-icons i {
+    font-size: 1.3rem;
+    cursor: pointer;
+    margin: 0 0.5rem;
+    transition: color 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.action-icons .bi-pencil-square:hover { color: var(--accent-blue); }
+.action-icons .bi-trash:hover { color: var(--danger-color); }
+
+/* Estilos do Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--bg-light);
+    padding: 2.5rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px var(--shadow);
+    border: 1px solid var(--bg-card);
+}
+
+.modal-content h2 {
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.btn-cancel {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--text-secondary);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-cancel:hover {
+    background-color: var(--bg-card);
+}
+
+.btn-save {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-purple);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-save:hover {
+    background: var(--secondary-purple);
+}
+
+.home-summary.insights > .card {
+    color: var(--oitavo-color);
+    background: #fff; /* Fundo branco para os cartões da home */
+    transition: all 0.3s ease;
+}
+
+.home-summary.insights > .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(132, 139, 200, 0.3);
+}
+
+.home-summary.insights > .card .middle {
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+.quick-actions {
+    margin-top: 3rem;
+}
+
+.quick-actions h2 {
+    margin-bottom: 1rem;
+    color: var(--oitavo-color);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 1rem 2rem rgba(132, 139, 200, 0.18);
+    text-decoration: none;
+    color: var(--oitavo-color);
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: var(--sexto-color);
+    color: var(--text-color);
+    transform: translateY(-5px);
+}
+
+.action-btn i {
+    font-size: 2rem;
+    padding: 0.5rem;
+    background: linear-gradient(to right, var(--sexto-color), var(--quarto-color));
+    color: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover i {
+    background: #fff;
+    color: var(--sexto-color);
+}
+
+.action-btn span {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* --- INCLUA E SUBSTITUA A PARTIR DAQUI --- */
+.table-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+.chart-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px var(--shadow);
+    height: 380px; /* <- ESTA É A LINHA QUE CORRIGE O TAMANHO */
+    display: flex;
+    flex-direction: column;
+}
+/* --- ATÉ AQUI --- */
+
+/*CONFIGURAÇÕES*/
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* --- INCLUA E SUBSTITUA A PARTIR DAQUI --- */
+
+.insights-grid {
+    display: grid;
+    /* Cria uma grelha flexível com 3 colunas */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 1.5rem;
+}
+
+.card-performance {
+    /* Faz o gráfico de performance ocupar 2 colunas */
+    grid-column: span 2; 
+}
+
+.card-status {
+    /* Faz o gráfico de status ocupar 1 coluna */
+    grid-column: span 1; 
+}
+
+.card-kpi {
+    /* Faz o cartão de KPI ocupar 1 coluna */
+    grid-column: span 1; 
+}
+
+.table-card {
+    /* Faz a tabela ocupar 2 colunas */
+    grid-column: span 2; 
+}
+
+.card-asset-type {
+    /* Faz o gráfico de tipos de ativo ocupar as 3 colunas (largura total) */
+    grid-column: span 3;
+}
+
+/* --- ATÉ AQUI --- */
+
+
+/*CONFIGURAÇÕES*/
+
+/* ======================================================= */
+/* ====== ESTILOS DA TELA DE CONFIGURAÇÕES (REVISADOS) ===== */
+/* ======================================================= */
+
+/* --- AJUSTES NO CONTEÚDO PRINCIPAL (Mantenha este padding se não houver wrapper) --- */
+.conteudo {
+    /* Mantido o padding padrão. Se você usar o wrapper, o padding deve ir para ele. */
+    padding: 40px; 
+    z-index: 1;
+    color: var(--oitavo-color); 
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* --- WRAPPER PARA CENTRALIZAÇÃO E LARGURA (Se você usou o HTML que te passei) --- */
+.configuracoes-wrapper {
+    max-width: 900px; /* Limita a largura para centralizar (esticado, mas controlado) */
+    margin-left: auto;
+    margin-right: auto; /* Centraliza horizontalmente */
+    width: 100%;
+}
+
+
+/* --- ESTILOS GERAIS DE CONTEÚDO --- */
+.titulo-secao {
+    max-width: 900px; /* Garante alinhamento com o bloco centralizado */
+    margin-left: auto;
+    margin-right: auto;
+    
+    font-size: 1.2em;
+    color: var(--quarto-color); 
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 15px; 
+}
+
+
+/* --- CARTÃO DE PERFIL (Roxo) --- */
+.cartao-perfil {
+    max-width: 900px; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    
+    /* Visuais */
+    background: linear-gradient(135deg, #8a2be2 0%, #6a1b9a 100%);
+    color: #fff;
+    border-radius: 2.5rem; /* Borda mais redonda */
+    padding: 25px 30px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: default;
+    
+    /* ANIMAÇÃO */
+    transition: all 0.3s ease; 
+}
+.cartao-perfil:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px); /* Efeito de levantar */
+}
+
+/* Ícone de Perfil Redondo */
+.profile-image-placeholder {
+    margin-right: 25px; 
+    height: 70px; 
+    width: 70px;
+    border-radius: 50%; /* Torna o placeholder circular */
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+}
+.profile-image-placeholder .bi-person-circle {
+    font-size: 3.5em; 
+    color: #fff;
+    line-height: 1;
+}
+.cartao-perfil .perfil-info {
+    display: flex;
+    align-items: center;
+}
+.cartao-perfil .perfil-info span {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+
+/* --- LISTAS DE CONFIGURAÇÕES (Brancas) --- */
+.configuracoes-lista {
+    max-width: 900px; /* Centraliza e limita a largura */
+    margin-left: auto;
+    margin-right: auto;
+    
+    background-color: #ffffff;
+    border-radius: 2.5rem; /* Borda mais redonda */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+    overflow: hidden; /* Garante que o conteúdo interno respeite o border-radius */
+}
+
+.configuracao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    /* Padding para esticar e dar espaço */
+    padding: 20px 30px; 
+    
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    text-decoration: none;
+    
+    /* ANIMAÇÃO */
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+/* Efeito de HOVER nos itens da lista */
+.configuracao-item:hover {
+    background-color: #f7f7f7; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
+}
+
+/* Garante que o último item não tenha borda inferior, mas arredonde os cantos */
+.configuracoes-lista .configuracao-item:last-child {
+    border-bottom: none;
+}
+
+/* Estilos de Ícones dentro do item */
+.icone-nome {
+    display: flex;
+    align-items: center;
+}
+.icone-nome i {
+    font-size: 1.4em;
+    margin-right: 25px; /* Mais espaço horizontal */
+    color: var(--quarto-color); 
+}
+
+/* Estilos para o detalhe e seta */
+.detalhe-seta {
+    display: flex;
+    align-items: center;
+    color: #777;
+}
+.detalhe-seta .detalhe {
+    margin-right: 10px;
+}
+.detalhe-seta i {
+    font-size: 0.9em;
+}
+
+/* --- REGRAS DO SWITCH TOGGLE (Se você decidir usar no futuro) --- */
+/* Mantenha o código do Switch Toggle aqui se ele já estiver no seu style.css */
+
+.charts-container {
+    display: grid;
+    /* Cria uma grelha flexível que se adapta ao tamanho da tela */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.6rem;
+    margin-top: 2rem;
+}
+
+.chart-card {
+    background: #fff;
+    padding: 1.8rem;
+    border-radius: 2rem;
+    box-shadow: 0 1rem 2rem rgba(132, 139, 200, 0.18);
+    /* Remove a altura fixa para um layout mais flexível */
+}
+
+.chart-card.large {
+    /* Faz o gráfico grande ocupar toda a largura da grelha */
+    grid-column: 1 / -1;
+}
+
+.chart-card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--oitavo-color);
+}
+
+.charts-container {
+    display: grid;
+    /* Cria uma grelha com 3 colunas de tamanho igual */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.6rem;
+    margin-top: 2rem;
+}
+
+.chart-card {
+    background: #fff;
+    padding: 1.8rem;
+    border-radius: 2rem;
+    box-shadow: 0 1rem 2rem rgba(132, 139, 200, 0.18);
+}
+
+/* Posiciona os gráficos na grelha */
+/* O 1º gráfico (Performance) ocupa 2 colunas */
+.charts-container .chart-card:nth-child(1) {
+    grid-column: span 2;
+}
+
+/* O 2º gráfico (Status) ocupa 1 coluna */
+.charts-container .chart-card:nth-child(2) {
+    grid-column: span 1;
+}
+
+/* O 3º gráfico (Tipos de Ativos) ocupa 3 colunas */
+.charts-container .chart-card:nth-child(3) {
+    grid-column: span 3;
+}
+
+.chart-card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--oitavo-color);
+}
+
+.sobre-nos-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; /* Coluna da imagem um pouco menor */
+    gap: 3rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 2rem;
+    box-shadow: 0 1rem 2rem rgba(132, 139, 200, 0.18);
+}
+
+.sobre-nos-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1.5rem;
+}
+
+.sobre-nos-valores h1 {
+    font-size: 2.5rem;
+    color: var(--oitavo-color);
+    margin-bottom: 0.5rem;
+}
+
+.sobre-nos-valores > p {
+    font-size: 1.1rem;
+    color: #677483;
+    margin-bottom: 2.5rem;
+}
+
+.lista-valores {
+    list-style: none;
+    padding: 0;
+}
+
+.lista-valores li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.lista-valores li:last-child {
+    margin-bottom: 0;
+}
+
+.lista-valores i {
+    font-size: 2rem;
+    color: var(--sexto-color);
+    padding-top: 5px;
+}
+
+.valor-texto h3 {
+    font-size: 1.3rem;
+    color: #363949;
+    margin-bottom: 0.3rem;
+}
+
+.valor-texto p {
+    color: #677483;
+    line-height: 1.6;
+}
+
+/* Responsividade para a página Sobre Nós */
+@media screen and (max-width: 992px) {
+    .sobre-nos-container {
+        grid-template-columns: 1fr;
+        gap:2rem;
+    }
+}
