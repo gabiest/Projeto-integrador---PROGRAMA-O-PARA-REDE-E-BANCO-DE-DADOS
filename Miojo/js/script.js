@@ -1,377 +1,500 @@
-/* ======================================================= */
-/* ============ ARQUIVO SCRIPT.JS - PROJETO HOSTS ========== */
-/* ======================================================= */
-'use strict';
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
-// Espera o DOM carregar antes de executar o script
+/**
+ * Gestor do Menu Lateral e Navegação
+ * Este script controla a funcionalidade de abrir e fechar o menu lateral
+ * e a navegação SPA (Single Page Application), se aplicável.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-
-    /* ======================================================= */
-    /* ================== 1. SELETORES GERAIS ================ */
-    /* ======================================================= */
     
-    // Seletores do Menu e Layout
-    const menuButton = document.querySelector('.botao-menu');
-    const sidebar = document.querySelector('.menu-lateral');
-    const content = document.querySelector('.conteudo');
-    const backgroundOverlay = document.querySelector('.background');
-    const sidebarLinks = document.querySelectorAll('.menu-lateral a[href^="#"]'); // Apenas links internos
-    const allPages = document.querySelectorAll('.conteudo > section[id]'); // Todas as seções "página"
+    // --- SELEÇÃO DE ELEMENTOS DO MENU ---
+    const botaoMenu = document.querySelector('.botao-menu');
+    const menuLateral = document.querySelector('.menu-lateral');
+    const conteudo = document.querySelector('.conteudo');
+    const background = document.querySelector('.background');
+    const navLinks = document.querySelectorAll('.nav-link'); // Para SPA
+    const pages = document.querySelectorAll('.page');     // Para SPA
 
-    // Seletores dos Modais
-    const addEditModal = document.getElementById('modal-add-edit');
-    const confirmModal = document.getElementById('modal-confirm');
-    
-
-    /* ======================================================= */
-    /* ================== 2. LÓGICA DO MENU LATERAL ========== */
-    /* ======================================================= */
-
-    const toggleSidebar = () => {
-        menuButton.classList.toggle('ativo');
-        sidebar.classList.toggle('ativo');
-        content.classList.toggle('ativo');
-        backgroundOverlay.classList.toggle('ativo');
+    // --- LÓGICA DO MENU LATERAL ---
+    const toggleMenu = () => {
+        if (menuLateral) menuLateral.classList.toggle('ativo');
+        if (botaoMenu) botaoMenu.classList.toggle('ativo');
+        if (conteudo) conteudo.classList.toggle('ativo');
+        if (background) background.classList.toggle('ativo');
     };
 
-    // Adiciona eventos para abrir/fechar o menu
-    if (menuButton && sidebar && content && backgroundOverlay) {
-        menuButton.addEventListener('click', toggleSidebar);
-        backgroundOverlay.addEventListener('click', toggleSidebar);
+    if (botaoMenu) botaoMenu.addEventListener('click', toggleMenu);
+    if (background) {
+        background.addEventListener('click', () => {
+            if (menuLateral && menuLateral.classList.contains('ativo')) {
+                toggleMenu();
+            }
+        });
     }
 
-    /* ======================================================= */
-    /* ================= 3. FUNÇÕES HELPER (Animação e Toast) == */
-    /* ======================================================= */
-
-    /**
-     * Anima elementos em cascata (stagger).
-     * O CSS já deve ter a classe .animate-entrada e a opacidade:0 inicial.
-     * @param {string} pageSelector - O seletor da PÁGINA (ex: "#dashboard")
-     * @param {string} elementSelector - O seletor dos elementos a animar (ex: ".kpi-card")
-     * @param {number} delay - O tempo em ms entre cada animação
-     */
-    const staggerAnimation = (pageSelector, elementSelector, delay = 100) => {
-        const page = document.querySelector(pageSelector);
-        if (!page) return;
-
-        const elements = page.querySelectorAll(elementSelector);
-        
-        elements.forEach((el, index) => {
-            // Garante que a animação possa rodar novamente
-            el.classList.remove('animate-entrada');
-            
-            // Força o navegador a "ver" a remoção da classe
-            void el.offsetWidth; 
-
-            // Adiciona a classe com um atraso
-            setTimeout(() => {
-                el.classList.add('animate-entrada');
-            }, index * delay);
-        });
-    };
-
-    /**
-     * Mostra uma notificação toast.
-     * @param {string} message - A mensagem a ser exibida.
-     * @param {string} type - 'success', 'error', ou 'info'.
-     */
-    window.showToast = (message, type = 'info') => {
-        const container = document.getElementById('toast-container');
-        if (!container) {
-            console.error('Container de toast (#toast-container) não encontrado.');
-            return;
-        }
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        let iconClass = 'bi-info-circle';
-        if(type === 'success') iconClass = 'bi-check-circle';
-        if(type === 'error') iconClass = 'bi-exclamation-triangle';
-
-        toast.innerHTML = `<i class="bi ${iconClass}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
-
-        // Auto-destruição
-        setTimeout(() => {
-            // Adiciona animação de saída
-            toast.style.animation = 'fadeOutToast 0.5s ease forwards';
-            // Remove o elemento após a animação
-            setTimeout(() => toast.remove(), 500);
-        }, 3000); // Toast dura 3 segundos
-    };
-
-
-    /* ======================================================= */
-    /* ================== 4. "ROTEAMENTO" DE PÁGINA ========== */
-    /* ======================================================= */
-
-    // Esconde todas as seções
-    const hideAllPages = () => {
-        allPages.forEach(page => {
-            page.style.display = 'none';
-        });
-    };
-
-    // Mostra uma página específica e dispara suas animações
+    // --- LÓGICA DE NAVEGAÇÃO SPA (se você usa) ---
     const showPage = (pageId) => {
-        hideAllPages();
-        
-        let page = document.getElementById(pageId);
-        
-        // Se a página não existir, mostra o dashboard
-        if (!page) {
-            console.warn(`Página não encontrada: ${pageId}. Mostrando dashboard.`);
-            pageId = 'dashboard';
-            page = document.getElementById('dashboard');
-            if (!page) {
-                console.error('Página de dashboard padrão não encontrada!');
-                return; 
+        pages.forEach(page => {
+            page.classList.remove('active');
+            if (page.id === pageId) {
+                page.classList.add('active');
             }
-        }
-
-        page.style.display = 'block';
-
-        // Dispara as funções de inicialização e animação da página
-        switch (pageId) {
-            case 'dashboard':
-                initDashboardPage();
-                break;
-            case 'inventario':
-                initInventoryPage();
-                break;
-            case 'configuracoes':
-                initSettingsPage();
-                break;
-            case 'sobre':
-                initSobrePage();
-                break;
-            // Adicione 'case' para 'relatorios', 'suporte', etc.
-        }
+        });
     };
 
-    // Adiciona eventos de clique aos links da sidebar
-    sidebarLinks.forEach(link => {
+    navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const pageId = link.getAttribute('href').substring(1); // Remove o '#'
-
-            // Remove a classe 'active' de todos os 'li'
-            sidebar.querySelectorAll('li').forEach(li => li.classList.remove('active'));
-            // Adiciona 'active' ao 'li' pai do link clicado
-            if(link.parentElement.tagName === 'LI'){
-                link.parentElement.classList.add('active');
-            }
-
+            const pageId = link.getAttribute('href').substring(1);
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            link.classList.add('active');
             showPage(pageId);
-            
-            // Fecha o menu em telas pequenas
-            if (window.innerWidth <= 768 && sidebar.classList.contains('ativo')) {
-                toggleSidebar();
+            if (window.innerWidth < 768 && menuLateral && menuLateral.classList.contains('ativo')) {
+                toggleMenu();
             }
         });
     });
+    if (pages.length > 0) showPage('home'); // Mostra a home page por padrão
 
-    /* ======================================================= */
-    /* ================= 5. INICIALIZAÇÃO DAS PÁGINAS ======== */
-    /* ======================================================= */
-
-    function initDashboardPage() {
-        // Dispara as animações em cascata
-        staggerAnimation('#dashboard', '.kpi-card', 100);
-        staggerAnimation('#dashboard', '.chart-card', 150);
-        staggerAnimation('#dashboard', '.table-card', 150);
-
-        // (Re)carrega os gráficos (exemplo)
-        initCharts(); 
-    }
-
-    function initInventoryPage() {
-        // Dispara as animações
-        staggerAnimation('#inventario', '.page-header', 100);
-        staggerAnimation('#inventario', '.search-container', 150);
-        staggerAnimation('#inventario', '.table-wrapper', 200);
-
-        // Configura os botões de modal (só precisa fazer isso uma vez)
-        // A função setupModalLogic() já foi chamada no início
-    }
-
-    function initSettingsPage() {
-        // Dispara as animações
-        staggerAnimation('#configuracoes', '.cartao-perfil', 100);
-        staggerAnimation('#configuracoes', '.titulo-secao', 150);
-        staggerAnimation('#configuracoes', '.configuracao-item', 70);
-    }
     
-    function initSobrePage() {
-        // Dispara as animações
-        staggerAnimation('#sobre', '.sobre-nos-container', 100);
-    }
+    // =======================================================
+    // === LÓGICA DA PÁGINA DE DASHBOARD (Gráficos e KPIs) ===
+    // =======================================================
+    
+    // Verifica se estamos na página do Dashboard olhando para um elemento chave
+    const dashboardGrid = document.querySelector('.dashboard-grid');
+    if (dashboardGrid && typeof Assets !== 'undefined') {
 
-    /* ======================================================= */
-    /* ================= 6. LÓGICA DE COMPONENTES =========== */
-    /* ======================================================= */
+        // --- CÁLCULO DOS KPIs ---
+        const totalAssets = Assets.length;
+        const onlineAssets = Assets.filter(asset => asset.status === 'Online').length;
+        // **FIX**: Lógica de Alertas atualizada para novas condições
+        const alertAssets = Assets.filter(asset => asset.condition === 'Manutenção' || asset.condition === 'Alocado').length;
+        const offlineAssets = totalAssets - onlineAssets;
 
-    // --- Lógica dos Modais ---
-    function setupModalLogic() {
-        if (!addEditModal || !confirmModal) {
-            console.warn('Modais não encontrados. A funcionalidade de inventário será limitada.');
-            return;
-        }
-
-        const btnAdd = document.querySelector('.btn-add');
+        // --- ATUALIZAÇÃO DOS CARTÕES (KPIs) ---
+        const setKPIValue = (elementId, value) => {
+            const element = document.getElementById(elementId);
+            if (element) element.textContent = value;
+        };
         
-        // Seletores do modal Adicionar/Editar
-        const modalTitle = addEditModal.querySelector('h2');
-        const btnCancelAdd = addEditModal.querySelector('.btn-cancel');
-        const btnSave = addEditModal.querySelector('.btn-save');
-        
-        // Seletores do modal de Confirmação
-        const btnCancelDelete = confirmModal.querySelector('.btn-cancel');
-        const btnConfirmDelete = confirmModal.querySelector('.btn-confirm-delete');
+        setKPIValue('total-assets-value', totalAssets);      // (Assumindo que você tenha um ID 'total-assets-value')
+        setKPIValue('online-assets-value', onlineAssets);    // (Assumindo ID 'online-assets-value')
+        setKPIValue('alert-assets-value', alertAssets);    // (Assumindo ID 'alert-assets-value')
+        setKPIValue('online-assets-dash', onlineAssets);   // (Para o seu cartão 'online-assets-dash')
+        setKPIValue('critical-alerts-count', alertAssets); // (Para o seu cartão 'critical-alerts-count')
 
-        // Funções genéricas para abrir/fechar
-        const openModal = (modal) => modal.style.display = 'flex';
-        const closeModal = (modal) => modal.style.display = 'none';
+        // --- LÓGICA DOS CÍRCULOS DE PROGRESSO (se houver) ---
+        const onlinePercent = totalAssets > 0 ? Math.round((onlineAssets / totalAssets) * 100) : 0;
+        const alertPercent = totalAssets > 0 ? Math.round((alertAssets / totalAssets) * 100) : 0;
+        setKPIValue('online-assets-percent', `${onlinePercent}%`);
+        setKPIValue('alert-assets-percent', `${alertPercent}%`);
 
-        // --- Eventos ---
+        const setCircleProgress = (circleId, percent) => {
+            const circle = document.getElementById(circleId);
+            if (circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (percent / 100) * circumference;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                circle.style.strokeDashoffset = offset;
+            }
+        };
+        setCircleProgress('total-assets-circle', 100);
+        setCircleProgress('online-assets-circle', onlinePercent);
+        setCircleProgress('alert-assets-circle', alertPercent);
 
-        // Abrir modal para ADICIONAR
-        if(btnAdd) {
-            btnAdd.addEventListener('click', () => {
-                modalTitle.textContent = 'Adicionar Novo Ativo';
-                // Limpar campos do formulário (IMPORTANTE)
-                addEditModal.querySelector('form').reset();
-                openModal(addEditModal);
+        // --- FUNÇÃO PARA POPULAR TABELAS (DO DASHBOARD) ---
+        const populateDashboardTable = (tableBodyId, data) => {
+            const tableBody = document.getElementById(tableBodyId);
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            data.forEach(asset => {
+                const tr = document.createElement('tr');
+                // **FIX**: Lógica de Condição atualizada
+                const conditionClass = asset.condition === 'Alocado' ? 'danger' : asset.condition === 'Manutenção' ? 'warning' : 'success';
+                // **FIX**: Adiciona coluna Mac Address
+                tr.innerHTML = `
+                    <td>${asset.assetName}</td>
+                    <td>${asset.macAddress || 'N/A'}</td> 
+                    <td>${asset.assetId}</td>
+                    <td class="${asset.status === 'Online' ? 'success' : 'danger'}">${asset.status}</td>
+                    <td class="${conditionClass}">${asset.condition}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        };
+        // Popula as tabelas do dashboard (se existirem)
+        populateDashboardTable('all-assets-table', Assets);
+        populateDashboardTable('online-assets-table', Assets.filter(asset => asset.status === 'Online'));
+
+        // --- LÓGICA DA TABELA "TOP ATIVOS" (com simulação) ---
+        const topAssetsTableBody = document.getElementById('top-assets-table');
+        if (topAssetsTableBody) {
+            const assetsWithLoad = Assets.map(asset => ({
+                ...asset,
+                // **FIX**: Lógica de simulação de carga atualizada
+                cpuLoad: asset.status === 'Offline' ? Math.floor(Math.random() * 10) : (asset.condition === 'Alocado' ? Math.floor(Math.random() * 20) + 80 : Math.floor(Math.random() * 60) + 20),
+                memLoad: asset.status === 'Offline' ? Math.floor(Math.random() * 20) : (asset.condition === 'Alocado' ? Math.floor(Math.random() * 15) + 85 : Math.floor(Math.random() * 50) + 30)
+            })).sort((a, b) => b.cpuLoad - a.cpuLoad).slice(0, 5);
+
+            topAssetsTableBody.innerHTML = '';
+            assetsWithLoad.forEach(asset => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${asset.assetName || '-'}</td> 
+                    <td>${asset.cpuLoad || 0}%</td> 
+                    <td>${asset.memLoad || 0}%</td>
+                `;
+                topAssetsTableBody.appendChild(tr);
             });
         }
 
-        // Fechar modais nos botões "Cancelar"
-        if(btnCancelAdd) btnCancelAdd.addEventListener('click', () => closeModal(addEditModal));
-        if(btnCancelDelete) btnCancelDelete.addEventListener('click', () => closeModal(confirmModal));
+        // --- LÓGICA DOS GRÁFICOS (CHARTS.JS) ---
+        const blue = '#00BFFF';
+        const success = '#41f1b6';
+        const warning = '#ffbb55';
+        const danger = '#ff7782';
+        const textColor = '#ffffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.14)';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font.family = 'Arimo';
+        Chart.defaults.plugins.legend.display = false;
 
-        // Salvar (Adicionar/Editar)
-        if(btnSave) {
-            btnSave.addEventListener('click', (e) => {
-                e.preventDefault(); // Previne o envio do formulário
-                // LÓGICA DE SALVAR AQUI
-                // ...
-                
-                // Se salvar, feche o modal e mostre um toast
-                closeModal(addEditModal);
-                showToast('Ativo salvo com sucesso!', 'success');
-            });
+        function createGradient(ctx, color1, color2) {
+            if (!ctx) return 'rgba(0,0,0,0)';
+            const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            return gradient;
         }
 
-        // Confirmar Exclusão
-        if(btnConfirmDelete) {
-            btnConfirmDelete.addEventListener('click', () => {
-                // LÓGICA DE EXCLUIR AQUI
-                // ...
-
-                closeModal(confirmModal);
-                showToast('Ativo excluído!', 'error');
-            });
-        }
-
-        // --- Delegação de Eventos na Tabela ---
-        const tableBody = document.querySelector('.inventory-table tbody');
-        if (tableBody) {
-            tableBody.addEventListener('click', (e) => {
-                const target = e.target;
-                
-                // Clique no ícone de EDITAR (procura pelo ícone ou seu 'pai')
-                if (target.classList.contains('bi-pencil-square') || target.closest('.bi-pencil-square')) {
-                    modalTitle.textContent = 'Editar Ativo';
-                    // 1. Pegar dados da linha (ex: target.closest('tr'))
-                    // 2. Preencher o formulário
-                    openModal(addEditModal);
-                }
-
-                // Clique no ícone de EXCLUIR
-                if (target.classList.contains('bi-trash') || target.closest('.bi-trash')) {
-                    // 1. Pegar nome do ativo (ex: target.closest('tr').cells[0].textContent)
-                    // 2. Colocar nome no modal de confirmação
-                    const assetName = target.closest('tr').cells[0].textContent;
-                    confirmModal.querySelector('strong').textContent = assetName;
-                    openModal(confirmModal);
-                }
-            });
-        }
-    }
-
-    // --- Lógica dos Gráficos (Chart.js) ---
-    function initCharts() {
-        // Checa se Chart.js está carregado
-        if (typeof Chart === 'undefined') {
-            console.warn('Chart.js não foi carregado. Os gráficos não serão renderizados.');
-            return;
-        }
-        
-        // Você precisa destruir gráficos antigos antes de criar novos para evitar bugs
-        // Esta é uma forma simples de guardar referências
-        if (!window.myCharts) {
-            window.myCharts = {};
-        }
-
-        // Gráfico de Performance (Linha)
-        const perfCtx = document.getElementById('performance-chart')?.getContext('2d');
-        if (perfCtx) {
-            if (window.myCharts.performance) window.myCharts.performance.destroy(); // Destrói antigo
-            window.myCharts.performance = new Chart(perfCtx, {
+        // Gráfico 1: Performance da Rede (Linha)
+        const performanceCtx = document.getElementById('performanceChart');
+        if (performanceCtx) {
+            const gradientBgLine = createGradient(performanceCtx.getContext('2d'), 'rgba(0, 191, 255, 0.3)', 'rgba(0, 191, 255, 0)');
+            new Chart(performanceCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                     datasets: [{
-                        label: 'Disponibilidade',
-                        data: [99.5, 99.7, 99.6, 99.8, 99.9, 99.7],
-                        borderColor: 'var(--success-color)',
-                        backgroundColor: 'rgba(65, 241, 182, 0.1)',
+                        label: 'Latência (ms)',
+                        data: [30, 25, 35, 28, 40, 32, 38],
+                        borderColor: blue,
+                        backgroundColor: gradientBgLine,
+                        tension: 0.4,
                         fill: true,
-                        tension: 0.4
+                        pointBackgroundColor: blue,
                     }]
                 },
-                options: { /* ... suas opções ... */ }
+                options: { scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
             });
         }
-        
-        // Gráfico de Status (Pizza/Doughnut)
-        const statusCtx = document.getElementById('status-chart')?.getContext('2d');
+
+        // Gráfico 2: Status dos Ativos (Donut)
+        const statusCtx = document.getElementById('statusChart');
         if (statusCtx) {
-            if (window.myCharts.status) window.myCharts.status.destroy(); // Destrói antigo
-            window.myCharts.status = new Chart(statusCtx, {
+            new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Online', 'Offline', 'Manutenção'],
+                    // **FIX**: Labels e dados atualizados
+                    labels: ['Online', 'Offline', 'Manutenção/Alocado'],
                     datasets: [{
-                        data: [150, 12, 5],
-                        backgroundColor: ['var(--success-color)', 'var(--danger-color)', 'var(--warning-color)']
+                        data: [onlineAssets, offlineAssets, alertAssets],
+                        backgroundColor: [success, danger, warning],
+                        borderColor: '#fff', // Cor de fundo do seu card
+                        borderWidth: 4,
+                        hoverOffset: 8
                     }]
                 },
-                options: { /* ... suas opções ... */ }
+                options: {
+                    cutout: '70%',
+                    plugins: { legend: { display: true, position: 'bottom', labels: { padding: 20 } } }
+                }
             });
         }
 
-        // Adicione outros gráficos (ex: 'asset-type-chart') aqui...
+        // Gráfico 3: Tipo de Ativos (Barra)
+        const assetTypeCtx = document.getElementById('assetTypeChart');
+        if (assetTypeCtx) {
+            const blue3Gradient = createGradient(assetTypeCtx.getContext('2d'), '#00BFFF', 'rgba(0, 191, 255, 0.3)', 'rgba(0, 191, 255, 0)');
+            new Chart(assetTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Servidores', 'Roteadores', 'Switches', 'Firewalls', 'Outros'],
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: [
+                            Assets.filter(a => a.type === 'Servidor').length,
+                            Assets.filter(a => a.type === 'Roteador').length,
+                            Assets.filter(a => a.type === 'Switch').length,
+                            Assets.filter(a => a.type === 'Firewall').length,
+                            Assets.filter(a => a.type === 'Outro').length,
+                        ],
+                        backgroundColor: blue3Gradient,
+                        borderRadius: 5
+                    }]
+                },
+                options: { scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        // --- LÓGICA DE ANIMAÇÕES DE ENTRADA E CONTAGEM ---
+        const cards = document.querySelectorAll('.kpi-card, .chart-card, .table-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.08}s`;
+            card.classList.add('animate-entrada');
+        });
+
+        const animateCountUp = (elementId, finalValue, duration = 1500) => {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentValue = Math.floor(progress * finalValue);
+                element.textContent = currentValue;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        setTimeout(() => {
+            // **FIX**: Lógica de contagem de alertas atualizada
+            const criticalAssetsCountAnim = Assets.filter(asset => asset.condition === 'Alocado' || asset.condition === 'Manutenção').length;
+            animateCountUp('online-assets-dash', onlineAssets);
+            animateCountUp('critical-alerts-count', criticalAssetsCountAnim);
+        }, 300);
     }
 
+    
+    // =============================================================
+    // === LÓGICA DA PÁGINA DE INVENTÁRIO (Tabela CRUD) ===
+    // =============================================================
+    
+    // Verifica se estamos na página de Inventário
+    const inventoryTableBody = document.getElementById('inventory-table-body');
+    if (inventoryTableBody && typeof Assets !== 'undefined') {
 
-    /* ======================================================= */
-    /* ================= 7. INICIALIZAÇÃO GERAL ============= */
-    /* ======================================================= */
+        // --- SELEÇÃO DE ELEMENTOS DO INVENTÁRIO ---
+        const searchInput = document.getElementById('search-input');
+        const addAssetBtn = document.getElementById('add-asset-btn');
+        const modal = document.getElementById('asset-modal');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const assetForm = document.getElementById('asset-form');
+        const modalTitle = document.getElementById('modal-title');
+        const assetIndexInput = document.getElementById('assetIndex');
+        const deleteModal = document.getElementById('delete-confirm-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const assetNameToDeleteSpan = document.getElementById('asset-name-to-delete');
+        const toastContainer = document.getElementById('toast-container');
 
-    // Configura os botões de modal (só precisa rodar uma vez)
-    setupModalLogic();
+        let assetsData = [...Assets]; // Cria uma cópia local dos dados
+        let assetIndexToDelete = null;
 
-    // Mostra a página inicial (Dashboard ou a que estiver na URL)
-    const initialPageId = window.location.hash ? window.location.hash.substring(1) : 'dashboard';
-    showPage(initialPageId);
+        // --- LÓGICA DO TOAST (Notificação) ---
+        const showToast = (message, type = 'info', duration = 3000) => {
+            if (!toastContainer) return;
+            const toast = document.createElement('div');
+            toast.classList.add('toast', type);
+            let iconClass = 'bi-info-circle-fill';
+            if (type === 'success') iconClass = 'bi-check-circle-fill';
+            if (type === 'error') iconClass = 'bi-x-octagon-fill';
+            toast.innerHTML = `<i class="bi ${iconClass}"></i> <span>${message}</span>`;
+            toastContainer.prepend(toast);
+            const removeTimer = setTimeout(() => {
+                toast.style.animation = 'fadeOutToast 0.5s ease forwards';
+                toast.addEventListener('animationend', () => toast.remove());
+            }, duration);
+            toast.addEventListener('click', () => {
+                clearTimeout(removeTimer);
+                toast.style.animation = 'fadeOutToast 0.3s ease forwards';
+                toast.addEventListener('animationend', () => toast.remove());
+            });
+        };
+        if (!document.getElementById('toastAnimationStyle')) {
+            const style = document.createElement('style');
+            style.id = 'toastAnimationStyle';
+            style.innerHTML = `@keyframes fadeOutToast { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }`;
+            document.head.appendChild(style);
+        }
 
-    // Marca o link ativo correto na sidebar ao carregar
-    const activeLink = sidebar.querySelector(`a[href="#${initialPageId}"]`);
-    if (activeLink && activeLink.parentElement.tagName === 'LI') {
-        activeLink.parentElement.classList.add('active');
+        // --- LÓGICA DO MODAL (Abrir/Fechar) ---
+        const openModal = (index = null) => {
+            if (!modal || !assetForm || !modalTitle || !assetIndexInput) return;
+            assetForm.reset();
+            assetIndexInput.value = '';
+            if (index !== null && assetsData[index]) {
+                // Modo Edição
+                modalTitle.textContent = 'Editar Ativo';
+                const asset = assetsData[index];
+                document.getElementById('assetName').value = asset.assetName || '';
+                if (document.getElementById('assetMac')) document.getElementById('assetMac').value = asset.macAddress || ''; // **FIX**
+                document.getElementById('assetId').value = asset.assetId || '';
+                document.getElementById('assetType').value = asset.type || '';
+                document.getElementById('assetStatus').value = asset.status || 'Online';
+                document.getElementById('assetCondition').value = asset.condition || 'Disponível'; // **FIX**
+                assetIndexInput.value = index;
+            } else {
+                // Modo Adição
+                modalTitle.textContent = 'Adicionar Novo Ativo';
+            }
+            modal.style.display = 'flex';
+        };
+
+        const closeModal = () => {
+            if (modal) modal.style.display = 'none';
+        };
+
+        if (addAssetBtn) addAssetBtn.addEventListener('click', () => openModal());
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+        if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        // --- LÓGICA DO MODAL DE EXCLUSÃO ---
+        const openDeleteModal = (index) => {
+            if (deleteModal && assetNameToDeleteSpan && assetsData[index]) {
+                assetIndexToDelete = index;
+                assetNameToDeleteSpan.textContent = assetsData[index].assetName;
+                deleteModal.style.display = 'flex';
+            }
+        };
+        const closeDeleteModal = () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+            assetIndexToDelete = null;
+        };
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+        if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) closeDeleteModal(); });
+
+        // --- LÓGICA DE SALVAR (Submit do Formulário) ---
+        if (assetForm) {
+            assetForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const assetData = {
+                    assetName: document.getElementById('assetName')?.value || 'Nome Indefinido',
+                    macAddress: document.getElementById('assetMac')?.value || '', // **FIX**
+                    assetId: document.getElementById('assetId')?.value || 'ID Indefinido',
+                    type: document.getElementById('assetType')?.value || 'Outro',
+                    status: document.getElementById('assetStatus')?.value || 'Online',
+                    condition: document.getElementById('assetCondition')?.value || 'Disponível' // **FIX**
+                };
+                const indexToEdit = assetIndexInput.value;
+
+                if (indexToEdit !== '' && assetsData[indexToEdit]) {
+                    assetsData[indexToEdit] = assetData;
+                    showToast(`Ativo "${assetData.assetName}" atualizado!`, 'success');
+                } else {
+                    assetsData.unshift(assetData);
+                    showToast(`Novo ativo "${assetData.assetName}" adicionado!`, 'success');
+                }
+                renderTable(assetsData);
+                closeModal();
+            });
+        }
+
+        // --- LÓGICA DE EXCLUIR (Confirmação) ---
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (assetIndexToDelete !== null && assetsData[assetIndexToDelete]) {
+                    const deletedAssetName = assetsData[assetIndexToDelete].assetName;
+                    assetsData.splice(assetIndexToDelete, 1);
+                    renderTable(assetsData);
+                    showToast(`Ativo "${deletedAssetName}" excluído.`, 'info');
+                }
+                closeDeleteModal();
+            });
+        }
+
+        // --- FUNÇÃO DE RENDERIZAR TABELA (Principal do Inventário) ---
+        const renderTable = (data) => {
+            inventoryTableBody.innerHTML = '';
+            if (data.length === 0) {
+                inventoryTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">Nenhum ativo encontrado.</td></tr>`; // **FIX: colspan="6"**
+                return;
+            }
+
+            data.forEach((asset, index) => {
+                const tr = document.createElement('tr');
+                const originalIndex = assetsData.findIndex(originalAsset => originalAsset.assetId === asset.assetId && originalAsset.assetName === asset.assetName);
+                
+                // **FIX**: Lógica de Condição atualizada
+                let conditionClass = '';
+                if (asset.condition === 'Alocado') {
+                    conditionClass = 'danger';
+                } else if (asset.condition === 'Manutenção') {
+                    conditionClass = 'warning';
+                } else if (asset.condition === 'Disponível') {
+                    conditionClass = 'success';
+                }
+                const statusClass = asset.status === 'Online' ? 'success' : 'danger';
+
+                // **FIX**: HTML da linha (tr) atualizado com Mac Address
+                tr.innerHTML = `
+                    <td>${asset.assetName || '-'}</td>
+                    <td>${asset.macAddress || 'N/A'}</td> 
+                    <td>${asset.assetId || '-'}</td>
+                    <td class="${statusClass}">${asset.status || '-'}</td>
+                    <td class="${conditionClass}">${asset.condition || '-'}</td>
+                    <td class="action-icons">
+                        <i class="bi bi-pencil-square edit-btn" data-index="${originalIndex}" title="Editar"></i>
+                        <i class="bi bi-trash delete-btn" data-index="${originalIndex}" title="Excluir"></i>
+                    </td>
+                `;
+                tr.style.setProperty('--animation-delay', `${index * 0.05}s`);
+                inventoryTableBody.appendChild(tr);
+
+                // Adiciona listeners aos botões
+                tr.querySelector('.edit-btn')?.addEventListener('click', () => {
+                    const idx = parseInt(tr.querySelector('.edit-btn').getAttribute('data-index'));
+                    if (!isNaN(idx)) openModal(idx);
+                });
+                tr.querySelector('.delete-btn')?.addEventListener('click', () => {
+                    const idx = parseInt(tr.querySelector('.delete-btn').getAttribute('data-index'));
+                    if (!isNaN(idx)) openDeleteModal(idx);
+                });
+            });
+        };
+
+        // --- CSS DE ANIMAÇÃO DA TABELA ---
+        if (!document.getElementById('tableRowAnimationStyle')) {
+            const style = document.createElement('style');
+            style.id = 'tableRowAnimationStyle';
+            style.innerHTML = `
+                .inventory-table tbody td { 
+                    opacity: 0; 
+                    transform: translateY(10px); 
+                    animation: fadeInRow 0.4s ease forwards; 
+                    animation-delay: var(--animation-delay, 0s);
+                }
+                @keyframes fadeInRow { 
+                    to { opacity: 1; transform: translateY(0); } 
+                }`;
+            document.head.appendChild(style);
+        }
+
+        // --- LÓGICA DE PESQUISA ---
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                const filteredAssets = assetsData.filter(asset =>
+                    (asset.assetName && asset.assetName.toLowerCase().includes(searchTerm)) ||
+                    (asset.macAddress && asset.macAddress.toLowerCase().includes(searchTerm)) || // **FIX**
+                    (asset.assetId && asset.assetId.toLowerCase().includes(searchTerm)) ||
+                    (asset.status && asset.status.toLowerCase().includes(searchTerm)) ||
+                    (asset.condition && asset.condition.toLowerCase().includes(searchTerm)) ||
+                    (asset.type && asset.type.toLowerCase().includes(searchTerm))
+                );
+                renderTable(filteredAssets);
+            });
+        }
+
+        // --- RENDERIZAÇÃO INICIAL ---
+        renderTable(assetsData);
     }
 
-});
+}); // Fim do DOMContentLoaded principal
+
