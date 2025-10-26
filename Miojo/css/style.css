@@ -1006,6 +1006,83 @@ body:has(main.welcome-screen) main.welcome-screen {
  margin-left: 0 !important; /* Sobrescreve a margem padrão */
 }
 
+
+/* --- Fundo de Sobreposição (Cinza/Fade) --- */
+.background {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: rgba(0, 0, 0, 0.5); /* CINZA */
+ z-index: 40; 
+ visibility: hidden;
+ opacity: 0;
+ transition: all 0.5s ease; /* A animação de fade */
+}
+
+.background.ativo {
+ visibility: visible;
+ opacity: 1;
+}
+
+/* --- ANIMAÇÃO DE ENTRADA PARA CONTEÚDO INTERNO --- */
+@keyframes fadeInUp {
+ from {
+ opacity: 0;
+ transform: translateY(20px);
+ }
+ to {
+ opacity: 1;
+ transform: translateY(0);
+ }
+}
+
+.animate-entrada {
+ animation-name: fadeInUp;  
+ animation-duration: 0.6s; 
+ animation-timing-function: ease-out;
+ animation-fill-mode: forwards; 
+ opacity: 0; 
+}
+
+/* Inicializa elementos que usarão .animate-entrada como invisíveis (para que a animação funcione) */
+.insights > div, .kpi-card, .chart-card, .table-card, .recent-orders, .quick-actions, .dashboard-grid > div {
+ opacity: 0; 
+}
+
+/* Regra de transição do menu: Removemos o 'fixed' que estava conflitando na Home */
+/* Se o menu precisa ser fixo em todas as páginas, mantenha 'position: fixed' aqui. */
+.menu-lateral {
+ position: fixed; /* Mantido, pois você disse que o menu existe e anima */
+ top: 0;
+ left: -300px;
+ width: 300px;
+ height: 100%;
+ z-index: 50;
+ background: linear-gradient(to bottom, var(--quarto-color), var(--terciary-color));
+ box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+ transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Remoção da regra de fixed que estava SÓ na Home (se ela estiver no seu código, ela deve ser removida ou sobrescrita, pois estava causando problemas de fixação/posição). A regra do menu lateral deve ser a principal. */
+/* Não incluí a regra da Home novamente para evitar o 'fixed' indesejado. */
+
+/* Garante que o conteúdo principal das páginas internas (não Home) se mova ao abrir o menu */
+.conteudo.ativo {
+ margin-left: 360px;
+}
+
+/* Garante que na Home, o conteúdo interno fique escondido, como antes */
+body:has(main.welcome-screen) .conteudo,
+body:has(main.welcome-screen) section.home {
+ display: none !important;
+}
+
+/* Inicializa elementos que usarão .animate-entrada como invisíveis */
+.insights > div, .kpi-card, .chart-card, .table-card, .recent-orders, .quick-actions, .dashboard-grid > div {
+ opacity: 0; 
+}
 /* Ajustes Responsivos */
 @media screen and (max-width: 992px) {
  .hero {
@@ -1045,7 +1122,6 @@ body:has(main.welcome-screen) main.welcome-screen {
 
 /* Oculta o conteúdo padrão (section.home) quando a home de boas-vindas está ativa */
 body:has(main.welcome-screen) .conteudo,
-body:has(main.welcome-screen) .background,
 body:has(main.welcome-screen) section.home {
  display: none !important;
 }
