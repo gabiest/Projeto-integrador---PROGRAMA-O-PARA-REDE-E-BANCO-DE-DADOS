@@ -1042,16 +1042,6 @@ body:has(main.welcome-screen) main.welcome-screen {
  margin-left: 360px; /* Posição quando o menu está aberto (300px do menu + 60px de margem inicial) */
 }
 
-/* 1. ESTILOS DO MENU (FIXO SOMENTE NA HOME) */
-body:has(main.welcome-screen) .menu-lateral,
-body:has(main.welcome-screen) .botao-menu {
- position: fixed; 
- top: 0;
- left: 0;
- height: 100vh; /* Fixa a altura total da tela */
- width: 280px;  /* Largura do seu menu */
- z-index: 100;
-}
 
 /* Oculta o conteúdo padrão (section.home) quando a home de boas-vindas está ativa */
 body:has(main.welcome-screen) .conteudo,
@@ -1986,7 +1976,7 @@ body:has(main.welcome-screen) {
 .toast {
     background-color: var(--sexto-color); /* Fundo roxo */
     color: white;
-    /* ... outros estilos ... */
+
 }
 .toast.success { background-color: var(--success-color); color: #333; }
 .toast.error { background-color: var(--danger-color); }
