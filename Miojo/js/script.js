@@ -498,3 +498,171 @@ document.addEventListener('DOMContentLoaded', () => {
 
 }); // Fim do DOMContentLoaded principal
 
+// =======================================================
+// == FUNÇÕES DE CONTROLE DE MODAIS (POP UPS) GERAIS ===
+// =======================================================
+
+// Função principal para abrir qualquer modal
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    const background = document.querySelector('.background'); // Usando o background do menu
+    
+    if (modal) {
+        modal.style.display = 'flex';
+        // Pequeno timeout para garantir que o CSS de transição funcione
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 10);
+    }
+    
+    // Opcional: Fechar o menu lateral ao abrir o modal se ele estiver aberto
+    const menu = document.querySelector('.menu-lateral');
+    const botaoMenu = document.querySelector('.botao-menu');
+    if (menu && menu.classList.contains('ativo')) {
+        menu.classList.remove('ativo');
+        botaoMenu.classList.remove('ativo');
+        if (background) background.classList.remove('ativo');
+    }
+}
+
+// Função principal para fechar qualquer modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.opacity = '0';
+        // Espera a transição do CSS (definida no seu .modal-overlay) antes de esconder
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300); // Deve ser um pouco maior que a transição CSS
+    }
+}
+
+// Função genérica para fechar ao clicar no fundo cinza (overlay)
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+        // Fecha apenas se o clique for no overlay, e não no conteúdo interno
+        if (e.target === this) {
+            closeModal(this.id);
+        }
+    });
+});
+
+// =======================================================
+// == CONFIGURAÇÃO DOS LISTENERS DOS BOTÕES DO MENU =======
+// =======================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. NOME E ALTERAR NOME/EMAIL
+    // O link no menu que leva para configurações geralmente não existe, mas vamos linkar ao cartão de perfil que você criou.
+    const perfilCard = document.querySelector('.cartao-perfil');
+    if (perfilCard) {
+        perfilCard.onclick = () => {
+            // Como você não tem um link específico, clicamos no cartão que agrupa Nome/Email
+            openModal('modal-nome-email');
+            document.getElementById('new-username').value = ''; // Limpa o campo de novo nome
+            document.getElementById('new-email').value = ''; // Limpa o campo de novo email
+        };
+    }
+
+    // 2. TROCAR SENHA
+    const senhaLink = document.querySelector('a[href="#"] .bi-key').closest('.configuracao-item');
+    if (senhaLink) {
+        senhaLink.onclick = (e) => {
+            e.preventDefault();
+            openModal('modal-trocar-senha');
+            document.getElementById('form-trocar-senha').reset(); // Limpa o formulário ao abrir
+        };
+    }
+    
+    // 3. ATUALIZAÇÃO DE SOFTWARE
+    const updateLink = document.querySelector('a[href="#"] .bi-cloud-download').closest('.configuracao-item');
+    if (updateLink) {
+        updateLink.onclick = (e) => {
+            e.preventDefault();
+            openModal('modal-atualizacao-software');
+        };
+    }
+
+    // 4. LINGUAGEM
+    const langLink = document.querySelector('a[href="#"] .bi-globe').closest('.configuracao-item');
+    if (langLink) {
+        langLink.onclick = (e) => {
+            e.preventDefault();
+            openModal('modal-linguagem');
+            // O valor atual do span 'Português (Brasil)' deve ser refletido no select
+            const currentLangText = langLink.querySelector('.detalhe').textContent.trim();
+            const selectElement = document.getElementById('language-select');
+            // Busca o option que corresponde ao texto atual (precisa de lógica mais robusta em produção)
+            // Aqui, apenas vamos garantir que o select esteja visível
+            selectElement.value = 'pt-br'; // Define um valor padrão ou o que for mais lógico
+        };
+    }
+
+    // 5. TERMOS E CONDIÇÕES
+    const termosLink = document.querySelector('a[href="#"] .bi-file-earmark-text').closest('.configuracao-item');
+    if (termosLink) {
+        termosLink.onclick = (e) => {
+            e.preventDefault();
+            openModal('modal-termos-condicoes');
+        };
+    }
+
+
+    // =======================================================
+    // == TRATAMENTO DOS SUBMIT DOS FORMULÁRIOS (Exemplo) =====
+    // =======================================================
+    
+    // 1. Form de Nome/Email
+    document.getElementById('form-nome-email').onsubmit = function(e) {
+        e.preventDefault();
+        const newUsername = document.getElementById('new-username').value;
+        const newEmail = document.getElementById('new-email').value;
+
+        // **AQUI VOCÊ COLOCARIA A LÓGICA DE BACKEND/API**
+        console.log(`Novo Nome: ${newUsername}, Novo Email: ${newEmail}`);
+        alert(`Informações salvas!\nNovo Nome: ${newUsername}\nNovo Email: ${newEmail}`);
+
+        // Atualizar a exibição na página (ex: o cartao-perfil)
+        document.querySelector('.cartao-perfil .perfil-info span').textContent = newUsername;
+        document.getElementById('current-email').value = newEmail; // Atualiza o campo read-only
+
+        closeModal('modal-nome-email');
+    };
+
+    // 2. Form de Troca de Senha
+    document.getElementById('form-trocar-senha').onsubmit = function(e) {
+        e.preventDefault();
+        const currentPass = document.getElementById('current-password').value;
+        const newPass = document.getElementById('new-password').value;
+        
+        // **AQUI VOCÊ COLOCARIA A LÓGICA DE VERIFICAÇÃO DE SENHA ATUAL E CRIPTOGRAFIA**
+        if (newPass.length < 6) {
+            alert('A nova senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
+        
+        console.log(`Senha alterada. Senha Atual: ${currentPass} | Nova Senha: ${newPass}`);
+        alert('Senha alterada com sucesso!');
+        
+        closeModal('modal-trocar-senha');
+    };
+    
+    // 4. Form de Linguagem
+    document.getElementById('form-linguagem').onsubmit = function(e) {
+        e.preventDefault();
+        const selectedLang = document.getElementById('language-select').value;
+        const langText = document.getElementById('language-select').options[document.getElementById('language-select').selectedIndex].text;
+        
+        // **AQUI VOCÊ COLOCARIA A LÓGICA PARA MUDAR O IDIOMA DA APLICAÇÃO**
+        console.log(`Idioma selecionado: ${selectedLang}`);
+        alert(`Idioma alterado para: ${langText}`);
+
+        // Atualizar o texto no item do menu/configuração
+        const langItem = document.querySelector('a[href="#"] .bi-globe').closest('.configuracao-item');
+        if (langItem) {
+            langItem.querySelector('.detalhe').textContent = langText;
+        }
+        
+        closeModal('modal-linguagem');
+    };
+});

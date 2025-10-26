@@ -86,7 +86,115 @@
 
 </main>
 
+<div id="modal-nome-email" class="modal-overlay">
+    <div class="modal-content">
+        <h2 id="modal-title-nome-email">Alterar Informações da Conta</h2>
+        <form id="form-nome-email">
+            
+            <div class="form-group">
+                <label for="current-username">Nome de Usuário Atual</label>
+                <input type="text" id="current-username" value="NOME DE USUÁRIO ATUAL" readonly>
+            </div>
 
+            <div class="form-group">
+                <label for="new-username">Alterar Nome</label>
+                <input type="text" id="new-username" placeholder="Digite o novo nome" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="current-email">Email Atual</label>
+                <input type="email" id="current-email" value="email@exemplo.com" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="new-email">Alterar Email</label>
+                <input type="email" id="new-email" placeholder="Digite o novo email" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('modal-nome-email')">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-trocar-senha" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Trocar Senha</h2>
+        <form id="form-trocar-senha">
+            <div class="form-group">
+                <label for="current-password">Senha Atual</label>
+                <input type="password" id="current-password" placeholder="Digite sua senha atual" required>
+            </div>
+            <div class="form-group">
+                <label for="new-password">Alterar Senha</label>
+                <input type="password" id="new-password" placeholder="Digite a nova senha" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-new-password">Confirmar Nova Senha</label>
+                <input type="password" id="confirm-new-password" placeholder="Confirme a nova senha" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('modal-trocar-senha')">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar Senha</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-atualizacao-software" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Atualização de Software</h2>
+        <form id="form-atualizacao-software">
+            <div class="form-group">
+                <label for="current-version">Versão Atual</label>
+                <input type="text" id="current-version" value="v2.5.1 - Última verificação: 26/10/2025" readonly>
+            </div>
+            <div class="form-group">
+                <label>Verificar Atualização</label>
+                <p style="color: var(--text-secondary-dark);">Clique em 'Verificar' para checar se há novas versões disponíveis.</p>
+                <button type="button" class="btn-save" style="width: 100%; background: var(--info-blue);" onclick="alert('Verificando atualizações...')">Verificar</button>
+            </div>
+            <div class="modal-actions" style="justify-content: center;">
+                <button type="button" class="btn-cancel" onclick="closeModal('modal-atualizacao-software')">Fechar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-linguagem" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Idioma</h2>
+        <form id="form-linguagem">
+            <div class="form-group">
+                <label for="language-select">Selecione o Idioma</label>
+                <select id="language-select" required>
+                    <option value="pt-br" selected>Português (Brasil)</option>
+                    <option value="en-us">Inglês (Estados Unidos)</option>
+                    <option value="es-es">Espanhol (Espanha)</option>
+                    <option value="fr-fr">Francês (França)</option>
+                    <option value="de-de">Alemão (Alemanha)</option>
+                    </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('modal-linguagem')">Cancelar</button>
+                <button type="submit" class="btn-save">Salvar Idioma</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-termos-condicoes" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Termos e Condições</h2>
+        <div style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 15px; margin-bottom: 2rem; border-radius: 8px;">
+            </div>
+        <div class="modal-actions" style="justify-content: center;">
+            <button type="button" class="btn-cancel" onclick="closeModal('modal-termos-condicoes')">Fechar</button>
+        </div>
+    </div>
+</div>
 
 
 
