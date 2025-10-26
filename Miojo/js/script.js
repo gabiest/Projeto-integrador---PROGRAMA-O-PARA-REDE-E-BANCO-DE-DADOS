@@ -666,3 +666,4 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal('modal-linguagem');
     };
 });
+
