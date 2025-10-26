@@ -996,7 +996,7 @@ main.welcome-screen {
  background-size: cover; 
  background-position: 80% center;
  position: absolute; /* Mude para absolute */
- right: 200px; /* Encosta ele na direita do pai relativo */
+ right: 188px; /* Encosta ele na direita do pai relativo */
  top: 50%;  /* Pode ajustar o top conforme necessário */
  transform: translateY(-50%);
 }
@@ -1025,6 +1025,8 @@ body:has(main.welcome-screen) main.welcome-screen {
  visibility: visible;
  opacity: 1;
 }
+
+
 
 /* --- ANIMAÇÃO DE ENTRADA PARA CONTEÚDO INTERNO --- */
 @keyframes fadeInUp {
@@ -1114,6 +1116,7 @@ body:has(main.welcome-screen) section.home {
  color: var(--oitavo-color);
  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
+
 
 .conteudo.ativo {
  margin-left: 360px; /* Posição quando o menu está aberto (300px do menu + 60px de margem inicial) */
