@@ -16,6 +16,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link'); // Para SPA
     const pages = document.querySelectorAll('.page');     // Para SPA
 
+    // --- LÓGICA DE USUÁRIO (carregar e atualizar nome/email) ---
+    // Funções globais para abrir/fechar modais usados na página de configurações
+    window.openModal = (id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'flex';
+    };
+    window.closeModal = (id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    };
+
+    const loadUserToUI = () => {
+        try {
+            const raw = localStorage.getItem('app_user');
+            if (!raw) return;
+            const user = JSON.parse(raw);
+            const profileSpan = document.getElementById('profile-username');
+            if (profileSpan && user.name) profileSpan.textContent = user.name;
+            const currentUsername = document.getElementById('current-username');
+            if (currentUsername && user.name) currentUsername.value = user.name;
+            const currentEmail = document.getElementById('current-email');
+            if (currentEmail && user.email) currentEmail.value = user.email;
+        } catch (e) {
+            console.warn('Erro carregando usuário do localStorage', e);
+        }
+    };
+
+    // Ao submeter o formulário de alterar nome/email, atualiza localStorage e UI
+    const bindProfileForm = () => {
+        const form = document.getElementById('form-nome-email');
+        if (!form) return;
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newName = document.getElementById('new-username')?.value.trim() || '';
+            const newEmail = document.getElementById('new-email')?.value.trim() || '';
+            try {
+                // Atualiza localStorage preservando campos que possam existir
+                const raw = localStorage.getItem('app_user');
+                const prev = raw ? JSON.parse(raw) : {};
+                const updated = { ...prev, name: newName || prev.name || 'Usuário', email: newEmail || prev.email || '' };
+                localStorage.setItem('app_user', JSON.stringify(updated));
+                // Atualiza UI
+                const profileSpan = document.getElementById('profile-username');
+                if (profileSpan) profileSpan.textContent = updated.name;
+                const currentUsername = document.getElementById('current-username');
+                if (currentUsername) currentUsername.value = updated.name;
+                const currentEmail = document.getElementById('current-email');
+                if (currentEmail) currentEmail.value = updated.email;
+                // Fecha modal
+                if (window.closeModal) window.closeModal('modal-nome-email');
+            } catch (err) {
+                console.warn('Erro ao salvar novo nome/email', err);
+            }
+        });
+    };
+
+    // Executa carregamento e binding
+    loadUserToUI();
+    bindProfileForm();
+
     // --- LÓGICA DO MENU LATERAL ---
     const toggleMenu = () => {
         if (menuLateral) menuLateral.classList.toggle('ativo');
