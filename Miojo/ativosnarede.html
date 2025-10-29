@@ -69,6 +69,10 @@
                     <input type="text" id="assetName" required>
                 </div>
                 <div class="form-group">
+                    <label for="macAddress">Endereço MAC</label>
+                    <input type="text" id="macAddress" required>
+                </div>
+                <div class="form-group">
                     <label for="assetId">Identificador (ID/IP)</label>
                     <input type="text" id="assetId" required>
                 </div>
@@ -86,9 +90,8 @@
                 <div class="form-group">
                     <label for="assetCondition">Condição</label>
                     <select id="assetCondition">
-                        <option value="Saudável">Saudável</option>
-                        <option value="Atenção">Atenção</option>
-                        <option value="Crítico">Crítico</option>
+                        <option value="Saudável">Disponível</option>
+                        <option value="Crítico">Alocado</option>
                         <option value="Manutenção">Manutenção</option>
                     </select>
                 </div>

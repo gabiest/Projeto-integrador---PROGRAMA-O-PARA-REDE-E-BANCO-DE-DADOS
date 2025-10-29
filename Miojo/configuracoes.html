@@ -93,7 +93,6 @@
             
             <div class="form-group">
                 <label for="current-username">Nome de Usuário Atual</label>
-                <!-- O valor será preenchido pelo JS a partir do localStorage -->
                 <input type="text" id="current-username" value="" readonly>
             </div>
 
@@ -104,7 +103,6 @@
             
             <div class="form-group">
                 <label for="current-email">Email Atual</label>
-                <!-- O valor será preenchido pelo JS a partir do localStorage -->
                 <input type="email" id="current-email" value="" readonly>
             </div>
 
@@ -191,7 +189,16 @@
     <div class="modal-content">
         <h2>Termos e Condições</h2>
         <div style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 15px; margin-bottom: 2rem; border-radius: 8px;">
-            </div>
+       <h3 style="margin-bottom: 1.5rem;">Privacidade e Uso de Dados</h3>
+            
+            <p style="margin-bottom: 1rem;"><strong>1. Monitoramento Interno:</strong> O acesso e a utilização desta plataforma estão sujeitos a monitoramento estritamente interno pela <strong>Hosts Tecnology Solutions LTDA</strong> com o objetivo exclusivo de garantir a segurança, o bom funcionamento e o cumprimento das políticas internas do sistema.</p>
+            
+            <p style="margin-bottom: 1rem;"><strong>2. Confidencialidade:</strong> Quaisquer dados ou atividades monitoradas são tratados com o mais alto grau de confidencialidade e <em>não serão compartilhados, vendidos ou cedidos a terceiros</em> para fins comerciais, de marketing ou quaisquer outros, exceto se exigido por lei ou ordem judicial.</p>
+            
+            <p style="margin-bottom: 1rem;"><strong>3. Base Legal (LGPD):</strong> Este tratamento de dados para fins de segurança e operação interna é realizado com base no legítimo interesse da <strong>Hosts Tecnology Solutions LTDA</strong>, em conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - LGPD).</p>
+
+            <p style="margin-bottom: 1rem;"><strong>4. Consentimento:</strong> Ao utilizar a plataforma, o usuário reconhece e concorda com o monitoramento interno descrito neste termo.</p>
+        </div>
         <div class="modal-actions" style="justify-content: center;">
             <button type="button" class="btn-cancel" onclick="closeModal('modal-termos-condicoes')">Fechar</button>
         </div>

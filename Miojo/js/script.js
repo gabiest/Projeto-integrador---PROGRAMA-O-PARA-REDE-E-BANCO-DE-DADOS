@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // **FIX**: Adiciona coluna Mac Address
                 tr.innerHTML = `
                     <td>${asset.assetName}</td>
-                    <td>${asset.macAddress || 'N/A'}</td> 
+                    <td>${asset.macAddress}</td> 
                     <td>${asset.assetId}</td>
                     <td class="${asset.status === 'Online' ? 'success' : 'danger'}">${asset.status}</td>
                     <td class="${conditionClass}">${asset.condition}</td>
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalTitle.textContent = 'Editar Ativo';
                 const asset = assetsData[index];
                 document.getElementById('assetName').value = asset.assetName || '';
-                if (document.getElementById('assetMac')) document.getElementById('assetMac').value = asset.macAddress || ''; // **FIX**
+                document.getElementById('macAddress').value = asset.macAddress || '';
                 document.getElementById('assetId').value = asset.assetId || '';
                 document.getElementById('assetType').value = asset.type || '';
                 document.getElementById('assetStatus').value = asset.status || 'Online';
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const assetData = {
                     assetName: document.getElementById('assetName')?.value || 'Nome Indefinido',
-                    macAddress: document.getElementById('assetMac')?.value || '', // **FIX**
+                    macAddress: document.getElementById('assetMac')?.value || 'ID Indefinido', // **FIX**
                     assetId: document.getElementById('assetId')?.value || 'ID Indefinido',
                     type: document.getElementById('assetType')?.value || 'Outro',
                     status: document.getElementById('assetStatus')?.value || 'Online',
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // **FIX**: HTML da linha (tr) atualizado com Mac Address
                 tr.innerHTML = `
                     <td>${asset.assetName || '-'}</td>
-                    <td>${asset.macAddress || 'N/A'}</td> 
+                    <td>${asset.macAddress || '-'}</td> 
                     <td>${asset.assetId || '-'}</td>
                     <td class="${statusClass}">${asset.status || '-'}</td>
                     <td class="${conditionClass}">${asset.condition || '-'}</td>
@@ -542,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const searchTerm = e.target.value.toLowerCase().trim();
                 const filteredAssets = assetsData.filter(asset =>
                     (asset.assetName && asset.assetName.toLowerCase().includes(searchTerm)) ||
-                    (asset.macAddress && asset.macAddress.toLowerCase().includes(searchTerm)) || // **FIX**
+                    (asset.macAddress && asset.macAddress.toLowerCase().includes(searchTerm)) || 
                     (asset.assetId && asset.assetId.toLowerCase().includes(searchTerm)) ||
                     (asset.status && asset.status.toLowerCase().includes(searchTerm)) ||
                     (asset.condition && asset.condition.toLowerCase().includes(searchTerm)) ||

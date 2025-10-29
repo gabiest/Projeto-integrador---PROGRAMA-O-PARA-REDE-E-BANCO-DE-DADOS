@@ -2129,11 +2129,6 @@ body:has(main.welcome-screen) {
 /* === 1. CORREÇÃO DA HOME PARA O MENU (Todas as Telas) === */
 /* ======================================================= */
 
-/*
- * Esta regra faz a sua página "Home" (welcome-screen)
- * ser empurrada para a direita quando o menu está ativo.
- * É a correção principal para o bug de sobreposição.
-*/
 main.welcome-screen.ativo {
     margin-left: 300px; /* (Use a largura exata do seu menu) */
     /* Garante que o conteúdo não seja selecionável quando o menu estiver aberto */
