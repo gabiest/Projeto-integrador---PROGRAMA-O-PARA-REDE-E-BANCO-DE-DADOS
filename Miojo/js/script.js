@@ -2,31 +2,93 @@
 /* eslint-disable no-unused-vars */
 
 /**
- * Gestor do Menu Lateral e Navegação
- * Este script controla a funcionalidade de abrir e fechar o menu lateral
- * e a navegação SPA (Single Page Application), se aplicável.
+ * Gestor do Menu Lateral, Navegação, Dashboard, Inventário e Configurações
+ * Este script unificado controla as funcionalidades principais da aplicação.
+ * VERSÃO CORRIGIDA E UNIFICADA
  */
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- SELEÇÃO DE ELEMENTOS DO MENU ---
+    // --- SELEÇÃO DE ELEMENTOS GERAIS ---
     const botaoMenu = document.querySelector('.botao-menu');
     const menuLateral = document.querySelector('.menu-lateral');
     const conteudo = document.querySelector('.conteudo');
     const background = document.querySelector('.background');
     const navLinks = document.querySelectorAll('.nav-link'); // Para SPA
     const pages = document.querySelectorAll('.page');     // Para SPA
-
-    // --- LÓGICA DE USUÁRIO (carregar e atualizar nome/email) ---
-    // Funções globais para abrir/fechar modais usados na página de configurações
-    window.openModal = (id) => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'flex';
+    
+    // --- LÓGICA DO TOAST (Notificação Global) ---
+    const toastContainer = document.getElementById('toast-container');
+    const showToast = (message, type = 'info', duration = 3000) => {
+        // Se o container não existir em uma página, não faz nada
+        if (!toastContainer) {
+            console.warn('Container de Toast não encontrado nesta página.');
+            return; 
+        }
+        const toast = document.createElement('div');
+        toast.classList.add('toast', type);
+        let iconClass = 'bi-info-circle-fill';
+        if (type === 'success') iconClass = 'bi-check-circle-fill';
+        if (type === 'error') iconClass = 'bi-x-octagon-fill';
+        toast.innerHTML = `<i class="bi ${iconClass}"></i> <span>${message}</span>`;
+        toastContainer.prepend(toast);
+        const removeTimer = setTimeout(() => {
+            toast.style.animation = 'fadeOutToast 0.5s ease forwards';
+            toast.addEventListener('animationend', () => toast.remove());
+        }, duration);
+        toast.addEventListener('click', () => {
+            clearTimeout(removeTimer);
+            toast.style.animation = 'fadeOutToast 0.3s ease forwards';
+            toast.addEventListener('animationend', () => toast.remove());
+        });
     };
-    window.closeModal = (id) => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+    // Adiciona estilos de animação do toast (apenas uma vez)
+    if (toastContainer && !document.getElementById('toastAnimationStyle')) {
+        const style = document.createElement('style');
+        style.id = 'toastAnimationStyle';
+        style.innerHTML = `@keyframes fadeOutToast { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }`;
+        document.head.appendChild(style);
+    }
+    // Torna o showToast global para ser usado em 'onclick' no HTML
+    window.showToast = showToast;
+
+
+    // --- FUNÇÕES GLOBAIS DE MODAL (Definidas uma vez) ---
+    // (Usando a versão mais completa que lida com animação de opacidade)
+    window.openModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => { // Pequeno timeout para a transição de opacidade funcionar
+                modal.style.opacity = '1';
+            }, 10);
+        }
+        // Fecha o menu lateral se estiver aberto
+        if (menuLateral && menuLateral.classList.contains('ativo')) {
+            toggleMenu();
+        }
     };
 
+    window.closeModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => { // Espera a transição de opacidade
+                modal.style.display = 'none';
+            }, 300); // Duração da transição CSS
+        }
+    };
+
+    // Listener para fechar modais ao clicar no overlay
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.closeModal(this.id);
+            }
+        });
+    });
+
+
+    // --- LÓGICA DE USUÁRIO (localStorage para nome/email) ---
     const loadUserToUI = () => {
         try {
             const raw = localStorage.getItem('app_user');
@@ -43,31 +105,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Ao submeter o formulário de alterar nome/email, atualiza localStorage e UI
+    // (Esta é a única função que lida com o form-nome-email)
     const bindProfileForm = () => {
         const form = document.getElementById('form-nome-email');
-        if (!form) return;
+        if (!form) return; // Sai se não estiver na página de Configurações
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const newName = document.getElementById('new-username')?.value.trim() || '';
             const newEmail = document.getElementById('new-email')?.value.trim() || '';
             try {
-                // Atualiza localStorage preservando campos que possam existir
+                // Atualiza localStorage
                 const raw = localStorage.getItem('app_user');
                 const prev = raw ? JSON.parse(raw) : {};
                 const updated = { ...prev, name: newName || prev.name || 'Usuário', email: newEmail || prev.email || '' };
                 localStorage.setItem('app_user', JSON.stringify(updated));
                 // Atualiza UI
-                const profileSpan = document.getElementById('profile-username');
-                if (profileSpan) profileSpan.textContent = updated.name;
-                const currentUsername = document.getElementById('current-username');
-                if (currentUsername) currentUsername.value = updated.name;
-                const currentEmail = document.getElementById('current-email');
-                if (currentEmail) currentEmail.value = updated.email;
-                // Fecha modal
-                if (window.closeModal) window.closeModal('modal-nome-email');
+                loadUserToUI(); // Re-carrega os dados para os campos
+                // Fecha modal e mostra Toast
+                window.closeModal('modal-nome-email');
+                showToast('Informações salvas com sucesso!', 'success');
+                
             } catch (err) {
                 console.warn('Erro ao salvar novo nome/email', err);
+                showToast('Erro ao salvar informações.', 'error');
             }
         });
     };
@@ -82,6 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (botaoMenu) botaoMenu.classList.toggle('ativo');
         if (conteudo) conteudo.classList.toggle('ativo');
         if (background) background.classList.toggle('ativo');
+        // Específico para a Home (main.welcome-screen)
+        const welcomeScreen = document.querySelector('main.welcome-screen');
+        if (welcomeScreen) welcomeScreen.classList.toggle('ativo');
     };
 
     if (botaoMenu) botaoMenu.addEventListener('click', toggleMenu);
@@ -122,15 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // === LÓGICA DA PÁGINA DE DASHBOARD (Gráficos e KPIs) ===
     // =======================================================
     
-    // Verifica se estamos na página do Dashboard olhando para um elemento chave
     const dashboardGrid = document.querySelector('.dashboard-grid');
     if (dashboardGrid && typeof Assets !== 'undefined') {
 
         // --- CÁLCULO DOS KPIs ---
         const totalAssets = Assets.length;
         const onlineAssets = Assets.filter(asset => asset.status === 'Online').length;
-        // **FIX**: Lógica de Alertas atualizada para novas condições
-        const alertAssets = Assets.filter(asset => asset.condition === 'Manutenção' || asset.condition === 'Alocado').length;
+        const alertAssets = Assets.filter(asset => asset.condition === 'Manutenção' || asset.condition === 'Alocado' || asset.condition === 'Crítico').length;
         const offlineAssets = totalAssets - onlineAssets;
 
         // --- ATUALIZAÇÃO DOS CARTÕES (KPIs) ---
@@ -139,77 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (element) element.textContent = value;
         };
         
-        setKPIValue('total-assets-value', totalAssets);      // (Assumindo que você tenha um ID 'total-assets-value')
-        setKPIValue('online-assets-value', onlineAssets);    // (Assumindo ID 'online-assets-value')
-        setKPIValue('alert-assets-value', alertAssets);    // (Assumindo ID 'alert-assets-value')
-        setKPIValue('online-assets-dash', onlineAssets);   // (Para o seu cartão 'online-assets-dash')
-        setKPIValue('critical-alerts-count', alertAssets); // (Para o seu cartão 'critical-alerts-count')
-
-        // --- LÓGICA DOS CÍRCULOS DE PROGRESSO (se houver) ---
-        const onlinePercent = totalAssets > 0 ? Math.round((onlineAssets / totalAssets) * 100) : 0;
-        const alertPercent = totalAssets > 0 ? Math.round((alertAssets / totalAssets) * 100) : 0;
-        setKPIValue('online-assets-percent', `${onlinePercent}%`);
-        setKPIValue('alert-assets-percent', `${alertPercent}%`);
-
-        const setCircleProgress = (circleId, percent) => {
-            const circle = document.getElementById(circleId);
-            if (circle) {
-                const radius = circle.r.baseVal.value;
-                const circumference = 2 * Math.PI * radius;
-                const offset = circumference - (percent / 100) * circumference;
-                circle.style.strokeDasharray = `${circumference} ${circumference}`;
-                circle.style.strokeDashoffset = offset;
-            }
-        };
-        setCircleProgress('total-assets-circle', 100);
-        setCircleProgress('online-assets-circle', onlinePercent);
-        setCircleProgress('alert-assets-circle', alertPercent);
-
-        // --- FUNÇÃO PARA POPULAR TABELAS (DO DASHBOARD) ---
-        const populateDashboardTable = (tableBodyId, data) => {
-            const tableBody = document.getElementById(tableBodyId);
-            if (!tableBody) return;
-            tableBody.innerHTML = '';
-            data.forEach(asset => {
-                const tr = document.createElement('tr');
-                // **FIX**: Lógica de Condição atualizada
-                const conditionClass = asset.condition === 'Alocado' ? 'danger' : asset.condition === 'Manutenção' ? 'warning' : 'success';
-                // **FIX**: Adiciona coluna Mac Address
-                tr.innerHTML = `
-                    <td>${asset.assetName}</td>
-                    <td>${asset.macAddress}</td> 
-                    <td>${asset.assetId}</td>
-                    <td class="${asset.status === 'Online' ? 'success' : 'danger'}">${asset.status}</td>
-                    <td class="${conditionClass}">${asset.condition}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        };
-        // Popula as tabelas do dashboard (se existirem)
-        populateDashboardTable('all-assets-table', Assets);
-        populateDashboardTable('online-assets-table', Assets.filter(asset => asset.status === 'Online'));
-
-        // --- LÓGICA DA TABELA "TOP ATIVOS" (com simulação) ---
-        const topAssetsTableBody = document.getElementById('top-assets-table');
-        if (topAssetsTableBody) {
-            const assetsWithLoad = Assets.map(asset => ({
-                ...asset,
-                // **FIX**: Lógica de simulação de carga atualizada
-                cpuLoad: asset.status === 'Offline' ? Math.floor(Math.random() * 10) : (asset.condition === 'Alocado' ? Math.floor(Math.random() * 20) + 80 : Math.floor(Math.random() * 60) + 20),
-                memLoad: asset.status === 'Offline' ? Math.floor(Math.random() * 20) : (asset.condition === 'Alocado' ? Math.floor(Math.random() * 15) + 85 : Math.floor(Math.random() * 50) + 30)
-            })).sort((a, b) => b.cpuLoad - a.cpuLoad).slice(0, 5);
-
-            topAssetsTableBody.innerHTML = '';
-            assetsWithLoad.forEach(asset => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${asset.assetName || '-'}</td> 
-                    <td>${asset.cpuLoad || 0}%</td> 
-                    <td>${asset.memLoad || 0}%</td>
-                `;
-                topAssetsTableBody.appendChild(tr);
-            });
-        }
+        setKPIValue('online-assets-dash', onlineAssets);
+        setKPIValue('critical-alerts-count', alertAssets);
+        // 'availability-value' é atualizado pela animação
 
         // --- LÓGICA DOS GRÁFICOS (CHARTS.JS) ---
         const blue = '#00BFFF';
@@ -223,14 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
         Chart.defaults.plugins.legend.display = false;
 
         function createGradient(ctx, color1, color2) {
-            if (!ctx) return 'rgba(0,0,0,0)';
+            if (!ctx?.canvas) return color1;
             const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
             gradient.addColorStop(0, color1);
             gradient.addColorStop(1, color2);
             return gradient;
         }
 
-        // Gráfico 1: Performance da Rede (Linha)
+        // Gráfico 1: Performance (Se existir no HTML)
         const performanceCtx = document.getElementById('performanceChart');
         if (performanceCtx) {
             const gradientBgLine = createGradient(performanceCtx.getContext('2d'), 'rgba(0, 191, 255, 0.3)', 'rgba(0, 191, 255, 0)');
@@ -248,27 +241,30 @@ document.addEventListener('DOMContentLoaded', () => {
                         pointBackgroundColor: blue,
                     }]
                 },
-                options: { scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+                options: { 
+                    maintainAspectRatio: false, // <-- CORREÇÃO
+                    scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } 
+                }
             });
         }
 
         // Gráfico 2: Status dos Ativos (Donut)
         const statusCtx = document.getElementById('statusChart');
         if (statusCtx) {
-            new Chart(statusCtx, {
+            new Chart(statusCtx.getContext('2d'), { // Adicionado getContext('2d')
                 type: 'doughnut',
                 data: {
-                    // **FIX**: Labels e dados atualizados
-                    labels: ['Online', 'Offline', 'Manutenção/Alocado'],
+                    labels: ['Online', 'Offline', 'Manutenção/Alocado/Crítico'],
                     datasets: [{
                         data: [onlineAssets, offlineAssets, alertAssets],
                         backgroundColor: [success, danger, warning],
-                        borderColor: '#fff', // Cor de fundo do seu card
-                        borderWidth: 4,
+                        borderColor: 'transparent',
+                        borderWidth: 0,
                         hoverOffset: 8
                     }]
                 },
                 options: {
+                    maintainAspectRatio: false, // <-- CORREÇÃO
                     cutout: '70%',
                     plugins: { legend: { display: true, position: 'bottom', labels: { padding: 20 } } }
                 }
@@ -279,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const assetTypeCtx = document.getElementById('assetTypeChart');
         if (assetTypeCtx) {
             const blue3Gradient = createGradient(assetTypeCtx.getContext('2d'), '#00BFFF', 'rgba(0, 191, 255, 0.3)', 'rgba(0, 191, 255, 0)');
-            new Chart(assetTypeCtx, {
+            new Chart(assetTypeCtx.getContext('2d'), { // Adicionado getContext('2d')
                 type: 'bar',
                 data: {
                     labels: ['Servidores', 'Roteadores', 'Switches', 'Firewalls', 'Outros'],
@@ -290,44 +286,53 @@ document.addEventListener('DOMContentLoaded', () => {
                             Assets.filter(a => a.type === 'Roteador').length,
                             Assets.filter(a => a.type === 'Switch').length,
                             Assets.filter(a => a.type === 'Firewall').length,
-                            Assets.filter(a => a.type === 'Outro').length,
+                            Assets.filter(a => a.type === 'Outro' || !a.type).length,
                         ],
                         backgroundColor: blue3Gradient,
                         borderRadius: 5
                     }]
                 },
-                options: { scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+                options: { 
+                    maintainAspectRatio: false, // <-- CORREÇÃO
+                    scales: { 
+                        y: { grid: { color: gridColor }, beginAtZero: true, ticks: { stepSize: 1 } }, 
+                        x: { grid: { display: false } } 
+                    } 
+                }
             });
         }
 
         // --- LÓGICA DE ANIMAÇÕES DE ENTRADA E CONTAGEM ---
         const cards = document.querySelectorAll('.kpi-card, .chart-card, .table-card');
         cards.forEach((card, index) => {
+            card.style.opacity = '0'; // Garante estado inicial
             card.style.animationDelay = `${index * 0.08}s`;
             card.classList.add('animate-entrada');
         });
 
-        const animateCountUp = (elementId, finalValue, duration = 1500) => {
+        const animateCountUp = (elementId, finalValue, duration = 1500, decimalPlaces = 0, suffix = '') => {
             const element = document.getElementById(elementId);
             if (!element) return;
             let startTimestamp = null;
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const currentValue = Math.floor(progress * finalValue);
-                element.textContent = currentValue;
+                const currentValue = progress * finalValue;
+                element.textContent = currentValue.toFixed(decimalPlaces) + suffix;
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
+                } else {
+                    element.textContent = finalValue.toFixed(decimalPlaces) + suffix;
                 }
             };
             window.requestAnimationFrame(step);
         };
 
+        // Chama as animações
         setTimeout(() => {
-            // **FIX**: Lógica de contagem de alertas atualizada
-            const criticalAssetsCountAnim = Assets.filter(asset => asset.condition === 'Alocado' || asset.condition === 'Manutenção').length;
-            animateCountUp('online-assets-dash', onlineAssets);
-            animateCountUp('critical-alerts-count', criticalAssetsCountAnim);
+            animateCountUp('online-assets-dash', onlineAssets, 1500, 0, '');
+            animateCountUp('critical-alerts-count', alertAssets, 1500, 0, '');
+            animateCountUp('availability-value', 99.8, 2500, 1, '%'); // <-- CORREÇÃO (duração maior)
         }, 300);
     }
 
@@ -336,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // === LÓGICA DA PÁGINA DE INVENTÁRIO (Tabela CRUD) ===
     // =============================================================
     
-    // Verifica se estamos na página de Inventário
     const inventoryTableBody = document.getElementById('inventory-table-body');
     if (inventoryTableBody && typeof Assets !== 'undefined') {
 
@@ -344,91 +348,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('search-input');
         const addAssetBtn = document.getElementById('add-asset-btn');
         const modal = document.getElementById('asset-modal');
-        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelBtn = document.getElementById('cancel-btn'); // Específico do modal 'asset-modal'
         const assetForm = document.getElementById('asset-form');
         const modalTitle = document.getElementById('modal-title');
         const assetIndexInput = document.getElementById('assetIndex');
         const deleteModal = document.getElementById('delete-confirm-modal');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn'); // Específico do 'delete-modal'
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const assetNameToDeleteSpan = document.getElementById('asset-name-to-delete');
-        const toastContainer = document.getElementById('toast-container');
 
         let assetsData = [...Assets]; // Cria uma cópia local dos dados
         let assetIndexToDelete = null;
 
-        // --- LÓGICA DO TOAST (Notificação) ---
-        const showToast = (message, type = 'info', duration = 3000) => {
-            if (!toastContainer) return;
-            const toast = document.createElement('div');
-            toast.classList.add('toast', type);
-            let iconClass = 'bi-info-circle-fill';
-            if (type === 'success') iconClass = 'bi-check-circle-fill';
-            if (type === 'error') iconClass = 'bi-x-octagon-fill';
-            toast.innerHTML = `<i class="bi ${iconClass}"></i> <span>${message}</span>`;
-            toastContainer.prepend(toast);
-            const removeTimer = setTimeout(() => {
-                toast.style.animation = 'fadeOutToast 0.5s ease forwards';
-                toast.addEventListener('animationend', () => toast.remove());
-            }, duration);
-            toast.addEventListener('click', () => {
-                clearTimeout(removeTimer);
-                toast.style.animation = 'fadeOutToast 0.3s ease forwards';
-                toast.addEventListener('animationend', () => toast.remove());
-            });
-        };
-        if (!document.getElementById('toastAnimationStyle')) {
-            const style = document.createElement('style');
-            style.id = 'toastAnimationStyle';
-            style.innerHTML = `@keyframes fadeOutToast { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }`;
-            document.head.appendChild(style);
-        }
-
         // --- LÓGICA DO MODAL (Abrir/Fechar) ---
-        const openModal = (index = null) => {
-            if (!modal || !assetForm || !modalTitle || !assetIndexInput) return;
-            assetForm.reset();
-            assetIndexInput.value = '';
-            if (index !== null && assetsData[index]) {
-                // Modo Edição
-                modalTitle.textContent = 'Editar Ativo';
-                const asset = assetsData[index];
-                document.getElementById('assetName').value = asset.assetName || '';
-                document.getElementById('macAddress').value = asset.macAddress || '';
-                document.getElementById('assetId').value = asset.assetId || '';
-                document.getElementById('assetType').value = asset.type || '';
-                document.getElementById('assetStatus').value = asset.status || 'Online';
-                document.getElementById('assetCondition').value = asset.condition || 'Disponível'; // **FIX**
-                assetIndexInput.value = index;
-            } else {
-                // Modo Adição
+        // (Usa as funções globais window.openModal/closeModal)
+        if (addAssetBtn) {
+            addAssetBtn.addEventListener('click', () => {
+                assetForm.reset();
+                assetIndexInput.value = ''; // Limpa o índice
                 modalTitle.textContent = 'Adicionar Novo Ativo';
-            }
-            modal.style.display = 'flex';
-        };
+                window.openModal('asset-modal');
+            });
+        }
+        if (cancelBtn) cancelBtn.addEventListener('click', () => window.closeModal('asset-modal'));
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', () => window.closeModal('delete-confirm-modal'));
 
-        const closeModal = () => {
-            if (modal) modal.style.display = 'none';
-        };
-
-        if (addAssetBtn) addAssetBtn.addEventListener('click', () => openModal());
-        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-        if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-        // --- LÓGICA DO MODAL DE EXCLUSÃO ---
-        const openDeleteModal = (index) => {
-            if (deleteModal && assetNameToDeleteSpan && assetsData[index]) {
-                assetIndexToDelete = index;
-                assetNameToDeleteSpan.textContent = assetsData[index].assetName;
-                deleteModal.style.display = 'flex';
-            }
-        };
-        const closeDeleteModal = () => {
-            if (deleteModal) deleteModal.style.display = 'none';
-            assetIndexToDelete = null;
-        };
-        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-        if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) closeDeleteModal(); });
 
         // --- LÓGICA DE SALVAR (Submit do Formulário) ---
         if (assetForm) {
@@ -436,23 +380,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const assetData = {
                     assetName: document.getElementById('assetName')?.value || 'Nome Indefinido',
-                    macAddress: document.getElementById('assetMac')?.value || 'ID Indefinido', // **FIX**
+                    macAddress: document.getElementById('macAddress')?.value || 'ID Indefinido', // <-- CORREÇÃO (de assetMac)
                     assetId: document.getElementById('assetId')?.value || 'ID Indefinido',
                     type: document.getElementById('assetType')?.value || 'Outro',
                     status: document.getElementById('assetStatus')?.value || 'Online',
-                    condition: document.getElementById('assetCondition')?.value || 'Disponível' // **FIX**
+                    condition: document.getElementById('assetCondition')?.value || 'Disponível'
                 };
                 const indexToEdit = assetIndexInput.value;
 
                 if (indexToEdit !== '' && assetsData[indexToEdit]) {
+                    // Modo Edição
                     assetsData[indexToEdit] = assetData;
                     showToast(`Ativo "${assetData.assetName}" atualizado!`, 'success');
                 } else {
-                    assetsData.unshift(assetData);
+                    // Modo Adição
+                    assetsData.unshift(assetData); // Adiciona no início
                     showToast(`Novo ativo "${assetData.assetName}" adicionado!`, 'success');
                 }
-                renderTable(assetsData);
-                closeModal();
+                renderTable(assetsData); // Atualiza a tabela
+                window.closeModal('asset-modal'); // Fecha o modal
             });
         }
 
@@ -461,11 +407,12 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmDeleteBtn.addEventListener('click', () => {
                 if (assetIndexToDelete !== null && assetsData[assetIndexToDelete]) {
                     const deletedAssetName = assetsData[assetIndexToDelete].assetName;
-                    assetsData.splice(assetIndexToDelete, 1);
+                    assetsData.splice(assetIndexToDelete, 1); // Remove o item
                     renderTable(assetsData);
                     showToast(`Ativo "${deletedAssetName}" excluído.`, 'info');
                 }
-                closeDeleteModal();
+                window.closeModal('delete-confirm-modal');
+                assetIndexToDelete = null; // Reseta o índice
             });
         }
 
@@ -473,26 +420,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderTable = (data) => {
             inventoryTableBody.innerHTML = '';
             if (data.length === 0) {
-                inventoryTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">Nenhum ativo encontrado.</td></tr>`; // **FIX: colspan="6"**
+                inventoryTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">Nenhum ativo encontrado.</td></tr>`;
                 return;
             }
 
             data.forEach((asset, index) => {
                 const tr = document.createElement('tr');
-                const originalIndex = assetsData.findIndex(originalAsset => originalAsset.assetId === asset.assetId && originalAsset.assetName === asset.assetName);
+                // Encontra o índice REAL do item no array 'assetsData' original
+                const originalIndex = assetsData.findIndex(originalAsset => 
+                    originalAsset.assetId === asset.assetId && originalAsset.assetName === asset.assetName
+                );
                 
-                // **FIX**: Lógica de Condição atualizada
+                // --- CORREÇÃO (Lógica de Condição) ---
                 let conditionClass = '';
-                if (asset.condition === 'Alocado') {
+                if (asset.condition === 'Alocado' || asset.condition === 'Crítico') {
                     conditionClass = 'danger';
                 } else if (asset.condition === 'Manutenção') {
                     conditionClass = 'warning';
-                } else if (asset.condition === 'Disponível') {
+                } else if (asset.condition === 'Disponível' || asset.condition === 'Saudável') {
                     conditionClass = 'success';
                 }
+                // --- Fim da Correção ---
+                
                 const statusClass = asset.status === 'Online' ? 'success' : 'danger';
 
-                // **FIX**: HTML da linha (tr) atualizado com Mac Address
                 tr.innerHTML = `
                     <td>${asset.assetName || '-'}</td>
                     <td>${asset.macAddress || '-'}</td> 
@@ -508,13 +459,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 inventoryTableBody.appendChild(tr);
 
                 // Adiciona listeners aos botões
-                tr.querySelector('.edit-btn')?.addEventListener('click', () => {
-                    const idx = parseInt(tr.querySelector('.edit-btn').getAttribute('data-index'));
-                    if (!isNaN(idx)) openModal(idx);
+                tr.querySelector('.edit-btn')?.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.getAttribute('data-index'));
+                    if (!isNaN(idx) && assetsData[idx]) {
+                        // Preenche o modal de edição com os dados
+                        assetForm.reset();
+                        assetIndexInput.value = idx; // Guarda o índice original
+                        modalTitle.textContent = 'Editar Ativo';
+                        const assetToEdit = assetsData[idx];
+                        document.getElementById('assetName').value = assetToEdit.assetName || '';
+                        document.getElementById('macAddress').value = assetToEdit.macAddress || '';
+                        document.getElementById('assetId').value = assetToEdit.assetId || '';
+                        document.getElementById('assetType').value = assetToEdit.type || '';
+                        document.getElementById('assetStatus').value = assetToEdit.status || 'Online';
+                        document.getElementById('assetCondition').value = assetToEdit.condition || 'Disponível';
+                        window.openModal('asset-modal');
+                    }
                 });
-                tr.querySelector('.delete-btn')?.addEventListener('click', () => {
-                    const idx = parseInt(tr.querySelector('.delete-btn').getAttribute('data-index'));
-                    if (!isNaN(idx)) openDeleteModal(idx);
+                tr.querySelector('.delete-btn')?.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.getAttribute('data-index'));
+                    if (!isNaN(idx) && assetsData[idx]) {
+                        assetIndexToDelete = idx; // Guarda o índice original
+                        assetNameToDeleteSpan.textContent = assetsData[idx].assetName;
+                        window.openModal('delete-confirm-modal');
+                    }
                 });
             });
         };
@@ -556,164 +524,124 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTable(assetsData);
     }
 
-}); // Fim do DOMContentLoaded principal
 
-// =======================================================
-// == FUNÇÕES DE CONTROLE DE MODAIS (POP UPS) GERAIS ===
-// =======================================================
+    // =======================================================
+    // == LÓGICA DA PÁGINA DE CONFIGURAÇÕES
+    // =======================================================
+    // (Apenas adiciona listeners se os elementos existirem nesta página)
 
-// Função principal para abrir qualquer modal
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    const background = document.querySelector('.background'); // Usando o background do menu
-    
-    if (modal) {
-        modal.style.display = 'flex';
-        // Pequeno timeout para garantir que o CSS de transição funcione
-        setTimeout(() => {
-            modal.style.opacity = '1';
-        }, 10);
-    }
-    
-    // Opcional: Fechar o menu lateral ao abrir o modal se ele estiver aberto
-    const menu = document.querySelector('.menu-lateral');
-    const botaoMenu = document.querySelector('.botao-menu');
-    if (menu && menu.classList.contains('ativo')) {
-        menu.classList.remove('ativo');
-        botaoMenu.classList.remove('ativo');
-        if (background) background.classList.remove('ativo');
-    }
-}
+    // --- BINDING DOS LINKS PARA ABRIR MODAIS ---
+    // (Usa as funções globais window.openModal/closeModal)
 
-// Função principal para fechar qualquer modal
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.opacity = '0';
-        // Espera a transição do CSS (definida no seu .modal-overlay) antes de esconder
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300); // Deve ser um pouco maior que a transição CSS
-    }
-}
-
-// Função genérica para fechar ao clicar no fundo cinza (overlay)
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', function(e) {
-        // Fecha apenas se o clique for no overlay, e não no conteúdo interno
-        if (e.target === this) {
-            closeModal(this.id);
-        }
-    });
-});
-
-// =======================================================
-// == CONFIGURAÇÃO DOS LISTENERS DOS BOTÕES DO MENU =======
-// =======================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. NOME E ALTERAR NOME/EMAIL
-    // O link no menu que leva para configurações geralmente não existe, mas vamos linkar ao cartão de perfil que você criou.
+    // 1. Cartão de Perfil (abre modal nome/email)
     const perfilCard = document.querySelector('.cartao-perfil');
     if (perfilCard) {
         perfilCard.onclick = () => {
-            // Como você não tem um link específico, clicamos no cartão que agrupa Nome/Email
-            openModal('modal-nome-email');
-            document.getElementById('new-username').value = ''; // Limpa o campo de novo nome
-            document.getElementById('new-email').value = ''; // Limpa o campo de novo email
+            // Limpa campos antes de abrir
+            const newUsername = document.getElementById('new-username');
+            const newEmail = document.getElementById('new-email');
+            if (newUsername) newUsername.value = '';
+            if (newEmail) newEmail.value = '';
+            window.openModal('modal-nome-email');
         };
     }
+    
+    // (O formulário 'form-nome-email' já está sendo tratado pela função 'bindProfileForm' no topo)
 
-    // 2. TROCAR SENHA
-    const senhaLink = document.querySelector('a[href="#"] .bi-key').closest('.configuracao-item');
+
+    // 2. Link "Trocar Senha"
+    // (Seu HTML original não tinha 'onclick', então usamos querySelector)
+    const senhaLink = document.querySelector('a[href="#"] .bi-key')?.closest('.configuracao-item');
     if (senhaLink) {
         senhaLink.onclick = (e) => {
             e.preventDefault();
-            openModal('modal-trocar-senha');
-            document.getElementById('form-trocar-senha').reset(); // Limpa o formulário ao abrir
+            window.openModal('modal-trocar-senha');
+        };
+    }
+
+    // Formulário "Trocar Senha" (Substitui o alert() por showToast())
+    const formTrocarSenha = document.getElementById('form-trocar-senha');
+    if (formTrocarSenha) {
+        formTrocarSenha.onsubmit = function(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-new-password').value;
+
+            if (newPass.length < 6) {
+                showToast('A nova senha deve ter pelo menos 6 caracteres.', 'error'); 
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showToast('As senhas não coincidem.', 'error');
+                return;
+            }
+            
+            // Lógica de salvar (simulação)
+            console.log('Senha alterada (simulação)');
+            
+            window.closeModal('modal-trocar-senha');
+            showToast('Senha alterada com sucesso!', 'success');
         };
     }
     
-    // 3. ATUALIZAÇÃO DE SOFTWARE
-    const updateLink = document.querySelector('a[href="#"] .bi-cloud-download').closest('.configuracao-item');
+    // 3. Link "Atualização de Software"
+    const updateLink = document.querySelector('a[href="#"] .bi-cloud-download')?.closest('.configuracao-item');
     if (updateLink) {
         updateLink.onclick = (e) => {
             e.preventDefault();
-            openModal('modal-atualizacao-software');
+            window.openModal('modal-atualizacao-software');
         };
     }
+    // (O botão 'Verificar' dentro do modal já tem o onclick="showToast(...)" no HTML)
 
 
-    // 5. TERMOS E CONDIÇÕES
-    const termosLink = document.querySelector('a[href="#"] .bi-file-earmark-text').closest('.configuracao-item');
+    // 4. Link "Termos e Condições"
+    const termosLink = document.querySelector('a[href="#"] .bi-file-earmark-text')?.closest('.configuracao-item');
     if (termosLink) {
         termosLink.onclick = (e) => {
             e.preventDefault();
-            openModal('modal-termos-condicoes');
+            window.openModal('modal-termos-condicoes');
         };
     }
 
+    // 5. Formulário de Linguagem (Se existir)
+    const formLinguagem = document.getElementById('form-linguagem');
+    if (formLinguagem) {
+        formLinguagem.onsubmit = function(e) {
+            e.preventDefault();
+            const selectedLang = document.getElementById('language-select').value;
+            const langText = document.getElementById('language-select').options[document.getElementById('language-select').selectedIndex].text;
+            
+            console.log(`Idioma selecionado: ${selectedLang}`);
+            // alert(`Idioma alterado para: ${langText}`); // <-- REMOVIDO
+            
+            const langItem = document.querySelector('a[href="#"] .bi-globe')?.closest('.configuracao-item');
+            if (langItem) {
+                langItem.querySelector('.detalhe').textContent = langText;
+            }
+            
+            window.closeModal('modal-linguagem');
+            showToast(`Idioma alterado para: ${langText}`, 'info'); // <-- SUBSTITUÍDO
+        };
+    }
 
-    // =======================================================
-    // == TRATAMENTO DOS SUBMIT DOS FORMULÁRIOS (Exemplo) =====
-    // =======================================================
-    
-    // 1. Form de Nome/Email
-    document.getElementById('form-nome-email').onsubmit = function(e) {
-        e.preventDefault();
-        const newUsername = document.getElementById('new-username').value;
-        const newEmail = document.getElementById('new-email').value;
+    // 6. Lógica do "Olho da Senha" (na página de Configurações)
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const inputField = document.getElementById(targetId);
+            if (inputField) {
+                if (inputField.type === 'password') {
+                    inputField.type = 'text';
+                    this.classList.remove('bi-eye-slash-fill');
+                    this.classList.add('bi-eye-fill');
+                } else {
+                    inputField.type = 'password';
+                    this.classList.remove('bi-eye-fill');
+                    this.classList.add('bi-eye-slash-fill');
+                }
+            }
+        });
+    });
 
-        // **AQUI VOCÊ COLOCARIA A LÓGICA DE BACKEND/API**
-        console.log(`Novo Nome: ${newUsername}, Novo Email: ${newEmail}`);
-        alert(`Informações salvas!\nNovo Nome: ${newUsername}\nNovo Email: ${newEmail}`);
-
-        // Atualizar a exibição na página (ex: o cartao-perfil)
-        document.querySelector('.cartao-perfil .perfil-info span').textContent = newUsername;
-        document.getElementById('current-email').value = newEmail; // Atualiza o campo read-only
-
-        closeModal('modal-nome-email');
-    };
-
-    // 2. Form de Troca de Senha
-    document.getElementById('form-trocar-senha').onsubmit = function(e) {
-        e.preventDefault();
-        const currentPass = document.getElementById('current-password').value;
-        const newPass = document.getElementById('new-password').value;
-        
-        // **AQUI VOCÊ COLOCARIA A LÓGICA DE VERIFICAÇÃO DE SENHA ATUAL E CRIPTOGRAFIA**
-        if (newPass.length < 6) {
-            alert('A nova senha deve ter pelo menos 6 caracteres.');
-            return;
-        }
-        
-        console.log(`Senha alterada. Senha Atual: ${currentPass} | Nova Senha: ${newPass}`);
-        alert('Senha alterada com sucesso!');
-        
-        closeModal('modal-trocar-senha');
-    };
-    
-    // 4. Form de Linguagem
-    document.getElementById('form-linguagem').onsubmit = function(e) {
-        e.preventDefault();
-        const selectedLang = document.getElementById('language-select').value;
-        const langText = document.getElementById('language-select').options[document.getElementById('language-select').selectedIndex].text;
-        
-        // **AQUI VOCÊ COLOCARIA A LÓGICA PARA MUDAR O IDIOMA DA APLICAÇÃO**
-        console.log(`Idioma selecionado: ${selectedLang}`);
-        alert(`Idioma alterado para: ${langText}`);
-
-        // Atualizar o texto no item do menu/configuração
-        const langItem = document.querySelector('a[href="#"] .bi-globe').closest('.configuracao-item');
-        if (langItem) {
-            langItem.querySelector('.detalhe').textContent = langText;
-        }
-        
-        closeModal('modal-linguagem');
-    };
-});
-
-document.addEventListener('DOMContentLoaded'), () => {
-    
-    
-}
+}); // --- FIM DO ÚNICO 'DOMContentLoaded' ---

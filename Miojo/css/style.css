@@ -2204,4 +2204,37 @@ main.welcome-screen.ativo {
     }
 }
 
+/* ======================================================= */
+/* === ESCONDE A COLUNA DE AÇÕES EM 'ATIVOS ONLINE' === */
+/* ======================================================= */
+
+/* Esconde o TÍTULO "AÇÕES" */
+.page-ativos-online .inventory-table th:nth-child(6) {
+    display: none;
+}
+
+/* Esconde a CÉLULA com os ícones em cada linha */
+.page-ativos-online .inventory-table td:nth-child(6) {
+    display: none;
+}
+
+.password-toggle-icon {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #888; 
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.password-toggle-icon:hover {
+    color: #9039d4; 
+    transform:scale(1.1);
+}
+
+
+.password-toggle-icon:active {
+    color: #382faa; 
+    transform:scale(0.95);
+}
+
+
 

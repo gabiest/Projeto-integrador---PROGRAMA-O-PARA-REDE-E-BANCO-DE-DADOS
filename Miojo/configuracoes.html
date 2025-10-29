@@ -30,15 +30,14 @@
         <h1>Configurações</h1>
         <p>Gerencie suas preferências de conta, notificações e integrações.</p>
     </main>
-
+<div id="toast-container"></div>
     <script src="js/assets.js"></script>
     <script src="js/script.js"></script>
-</body>
-</html>
 
 
 
-<main class="conteudo">
+
+
     <div class="configuracoes-wrapper">
 
         <div class="cartao-perfil"> 
@@ -158,7 +157,7 @@
             <div class="form-group">
                 <label>Verificar Atualização</label>
                 <p style="color: var(--text-secondary-dark);">Clique em 'Verificar' para checar se há novas versões disponíveis.</p>
-                <button type="button" class="btn-save" style="width: 100%; background: var(--info-blue);" onclick="alert('Verificando atualizações...')">Verificar</button>
+                <button type="button" class="btn-save" style="width: 100%; background: var(--info-blue);" onclick="showToast('Verificando atualizações...')">Verificar</button>
             </div>
             <div class="modal-actions" style="justify-content: center;">
                 <button type="button" class="btn-cancel" onclick="closeModal('modal-atualizacao-software')">Fechar</button>
@@ -189,5 +188,28 @@
         </div>
     </div>
 </div>
+
+
+
+<script>
+// Função para alternar exibição da senha
+document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+    icon.addEventListener('click', () => {
+        const targetId = icon.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-fill');
+            icon.classList.add('bi-eye-slash-fill');
+        }
+    });
+});
+</script>
+
 
 
