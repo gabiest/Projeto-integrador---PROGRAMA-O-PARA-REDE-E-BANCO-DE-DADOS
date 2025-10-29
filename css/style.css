@@ -65,7 +65,7 @@ body {
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 6;
+    z-index: 60;
     background: linear-gradient(to right, var(--sexto-color), var(--quarto-color));
     border: none;
     border-radius: 5px;
@@ -1158,7 +1158,7 @@ body:has(main.welcome-screen) {
   left: 464px;        /* Distância da esquerda */
   width: 300px;      /* Ajuste o tamanho da sua logo */
   height: auto;      /* Mantém proporção */
-  z-index: 200;      /* Acima de outros elementos */
+  z-index: 20;      /* Acima de outros elementos */
 }
 
 /* Ajuste responsivo para telas menores */
@@ -1266,12 +1266,18 @@ body:has(main.welcome-screen) {
 /* --- NOVOS ESTILOS PARA DASHBOARD ELABORADO --- */
 
 /* Nova Grelha do Dashboard */
+/* Nova Grelha do Dashboard */
 .dashboard-grid {
     display: grid;
-    /* 3 colunas para KPIs, depois layout variado */
+    /* 3 colunas, como no original */
     grid-template-columns: repeat(3, 1fr); 
     gap: 1.5rem;
-    margin-top: 1rem; /* Reduzido espaço superior */
+    margin-top: 1rem;
+    
+    /* --- CORREÇÃO DE ALTURA --- */
+    flex-grow: 1; /* Faz a grid esticar */
+    /* Define 2 linhas: 1ª para KPIs (altura auto), 2ª para Gráficos (esticada) */
+    grid-template-rows: auto 1fr; 
 }
 
 /* Cartões KPI */
@@ -1329,11 +1335,19 @@ body:has(main.welcome-screen) {
     font-weight: 600; /* Título mais forte */
 }
 
-/* --- POSICIONAMENTO NA GRELHA --- */
-.card-performance { grid-column: span 2; } 
-.card-status { grid-column: span 1; }     
-.card-top-assets { grid-column: span 2; } 
-.card-asset-type { grid-column: span 1; } 
+/* --- POSICIONAMENTO NA GRELHA (AJUSTADO) --- */
+
+/* Os 3 KPIs no topo continuam ocupando 1 coluna cada (total 3) */
+
+/* Faz o gráfico de Status ocupar 1 coluna */
+.card-status { 
+    grid-column: span 1; 
+} 
+
+/* Faz o gráfico de Tipos de Ativos ocupar 2 colunas */
+.card-asset-type { 
+    grid-column: span 2; 
+}
 
 /* Ajusta altura dos canvas */
 .chart-card canvas {
@@ -1686,8 +1700,6 @@ body:has(main.welcome-screen) {
 
 /* --- ESTILOS CORRIGIDOS E ALINHADOS PARA A TABELA DE ATIVOS --- */
 
-/* Wrapper da Tabela (mantém fundo escuro e padding) */
-/* --- ESTILOS CORRIGIDOS PARA TABELA COM GRADIENTE --- */
 
 /* Wrapper da Tabela (Fundo Gradiente) */
 /* --- ESTILOS CORRIGIDOS PARA TABELA COM GRADIENTE E TEXTO CLARO --- */
@@ -2129,11 +2141,6 @@ body:has(main.welcome-screen) {
 /* === 1. CORREÇÃO DA HOME PARA O MENU (Todas as Telas) === */
 /* ======================================================= */
 
-/*
- * Esta regra faz a sua página "Home" (welcome-screen)
- * ser empurrada para a direita quando o menu está ativo.
- * É a correção principal para o bug de sobreposição.
-*/
 main.welcome-screen.ativo {
     margin-left: 300px; /* (Use a largura exata do seu menu) */
     /* Garante que o conteúdo não seja selecionável quando o menu estiver aberto */
@@ -2198,3 +2205,68 @@ main.welcome-screen.ativo {
 }
 
 
+/* --- ESTILOS PARA VISUALIZADOR DE SENHA (DENTRO DO CAMPO) --- */
+.password-group {
+    position: relative;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon input.password-input {
+    width: 100%;
+    padding-right: 40px; 
+    box-sizing: border-box; 
+}
+
+.input-with-icon .password-toggle-icon {
+    position: absolute;
+    right: 10px; 
+    cursor: pointer;
+    font-size: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%); 
+    transition: color 0.2s;
+}
+
+.input-with-icon .password-toggle-icon:hover {
+    color: var(--primary-color, #6a1b9a); 
+}
+
+/* ========================================================= */
+/* === CORREÇÃO FINAL PARA ESTICAR OS GRÁFICOS === */
+/* ========================================================= */
+
+/* 1. Faz o container principal (main.conteudo) ter altura total da tela */
+.conteudo {
+    min-height: 100vh;
+    display: flex !important; /* Força o flex */
+    flex-direction: column !important; /* Força a direção */
+    box-sizing: border-box; /* Garante que padding não quebre a altura */
+}
+
+/* 2. Faz a grid (onde estão os cards) esticar para preencher o espaço */
+.dashboard-grid {
+    flex-grow: 1 !important; /* Força a grid a esticar */
+    /* Define 2 linhas: 1ª para KPIs (altura auto), 2ª para Gráficos (esticada) */
+    grid-template-rows: auto 1fr !important; 
+}
+
+/* 3. Faz os cards dos gráficos (que contêm os canvas) permitirem o stretch */
+.chart-card {
+    display: flex !important; /* Força o flex */
+    flex-direction: column !important; /* Força a direção */
+    /* IMPORTANTE: Remove qualquer height: 380px; fixo */
+    height: auto !important; 
+}
+
+/* 4. Faz o canvas (o gráfico em si) esticar para preencher o card */
+.chart-card canvas {
+    flex-grow: 1 !important; /* Força o canvas a esticar */
+    min-height: 0 !important;
+    /* IMPORTANTE: Remove qualquer max-height: 250px; fixo */
+    max-height: 100% !important; 
+}
