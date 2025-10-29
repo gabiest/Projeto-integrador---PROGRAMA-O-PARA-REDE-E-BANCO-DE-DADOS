@@ -68,13 +68,7 @@
         <h2 class="titulo-secao">Geral</h2>
         <div class="configuracoes-lista">
             
-            <a href="#" class="configuracao-item">
-                <div class="icone-nome"><i class="bi bi-globe"></i><span>Linguagem</span></div>
-                <div class="detalhe-seta">
-                    <span class="detalhe">Português (Brasil)</span>
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-            </a>
+    
             
             <a href="#" class="configuracao-item">
                 <div class="icone-nome"><i class="bi bi-file-earmark-text"></i><span>Termos e Condições</span></div>
@@ -123,18 +117,28 @@
     <div class="modal-content">
         <h2>Trocar Senha</h2>
         <form id="form-trocar-senha">
+            
             <div class="form-group">
                 <label for="current-password">Senha Atual</label>
-                <input type="password" id="current-password" placeholder="Digite sua senha atual" required>
-            </div>
-            <div class="form-group">
+                <input type="text" id="current-password" placeholder="Digite sua senha atual" required readonly>
+                </div>
+
+            <div class="form-group password-group">
                 <label for="new-password">Alterar Senha</label>
-                <input type="password" id="new-password" placeholder="Digite a nova senha" required>
+                <div class="input-with-icon">
+                    <input type="password" id="new-password" class="password-input" placeholder="Digite a nova senha" required>
+                    <i class="bi bi-eye-slash-fill password-toggle-icon" data-target="new-password"></i>
+                </div>
             </div>
-            <div class="form-group">
+
+            <div class="form-group password-group">
                 <label for="confirm-new-password">Confirmar Nova Senha</label>
-                <input type="password" id="confirm-new-password" placeholder="Confirme a nova senha" required>
+                <div class="input-with-icon">
+                    <input type="password" id="confirm-new-password" class="password-input" placeholder="Confirme a nova senha" required>
+                    <i class="bi bi-eye-slash-fill password-toggle-icon" data-target="confirm-new-password"></i>
+                </div>
             </div>
+            
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal('modal-trocar-senha')">Cancelar</button>
                 <button type="submit" class="btn-save">Salvar Senha</button>
@@ -161,26 +165,7 @@
             </div>
         </form>
     </div>
-</div>
 
-<div id="modal-linguagem" class="modal-overlay">
-    <div class="modal-content">
-        <h2>Idioma</h2>
-        <form id="form-linguagem">
-            <div class="form-group">
-                <label for="language-select">Selecione o Idioma</label>
-                <select id="language-select" required>
-                    <option value="pt-br" selected>Português (Brasil)</option>
-                    <option value="en-us">Inglês (Estados Unidos)</option>
-                    <option value="es-es">Espanhol (Espanha)</option>
-                    <option value="fr-fr">Francês (França)</option>
-                    <option value="de-de">Alemão (Alemanha)</option>
-                    </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal('modal-linguagem')">Cancelar</button>
-                <button type="submit" class="btn-save">Salvar Idioma</button>
-            </div>
         </form>
     </div>
 </div>
@@ -204,8 +189,5 @@
         </div>
     </div>
 </div>
-
-
-
 
 

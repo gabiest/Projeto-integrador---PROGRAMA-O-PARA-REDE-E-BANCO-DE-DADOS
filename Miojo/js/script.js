@@ -643,20 +643,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 4. LINGUAGEM
-    const langLink = document.querySelector('a[href="#"] .bi-globe').closest('.configuracao-item');
-    if (langLink) {
-        langLink.onclick = (e) => {
-            e.preventDefault();
-            openModal('modal-linguagem');
-            // O valor atual do span 'Português (Brasil)' deve ser refletido no select
-            const currentLangText = langLink.querySelector('.detalhe').textContent.trim();
-            const selectElement = document.getElementById('language-select');
-            // Busca o option que corresponde ao texto atual (precisa de lógica mais robusta em produção)
-            // Aqui, apenas vamos garantir que o select esteja visível
-            selectElement.value = 'pt-br'; // Define um valor padrão ou o que for mais lógico
-        };
-    }
 
     // 5. TERMOS E CONDIÇÕES
     const termosLink = document.querySelector('a[href="#"] .bi-file-earmark-text').closest('.configuracao-item');
@@ -727,3 +713,102 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // ===================== CONTROLE DO MODAL =====================
+    
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('ativo');
+            document.getElementById('form-trocar-senha').reset(); // Limpa o formulário
+            
+            // Restaura o campo de senha atual ao estado padrão ao fechar (segurança)
+            const currentPasswordField = document.getElementById('current-password');
+            if (currentPasswordField) {
+                 currentPasswordField.type = 'password'; 
+                 currentPasswordField.value = ''; 
+            }
+        }
+    }
+
+    // FUNÇÃO PARA ABRIR O MODAL (DEVE SER CHAMADA AO CLICAR NO MENU)
+    window.openModalTrocarSenha = function(senhaAtualDoUsuario) {
+        const modal = document.getElementById('modal-trocar-senha');
+        if (modal) {
+            modal.classList.add('ativo');
+            
+            // Define o valor visível e readonly para a senha atual
+            const currentPasswordField = document.getElementById('current-password');
+            if (currentPasswordField) {
+                 currentPasswordField.value = senhaAtualDoUsuario || '********'; 
+                 currentPasswordField.type = 'text'; 
+            }
+        }
+    }
+    
+    window.closeModal = closeModal; // Torna a função acessível via HTML onclick
+
+    // ===================== LÓGICA DA SENHA (OLHO E ESPELHAMENTO) =====================
+    
+    const currentPasswordField = document.getElementById('current-password');
+    const newPasswordField = document.getElementById('new-password');
+    const confirmPasswordField = document.getElementById('confirm-new-password');
+
+    // 1. ÍCONE DO OLHO
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const inputField = document.getElementById(targetId);
+
+            if (inputField) {
+                if (inputField.type === 'password') {
+                    inputField.type = 'text';
+                    this.classList.remove('bi-eye-slash-fill');
+                    this.classList.add('bi-eye-fill');
+                } else {
+                    inputField.type = 'password';
+                    this.classList.remove('bi-eye-fill');
+                    this.classList.add('bi-eye-slash-fill');
+                }
+            }
+        });
+    });
+    
+    // 2. ESPELHAMENTO DE SENHA (Para visualizar digitação no campo superior)
+    if (newPasswordField && currentPasswordField) {
+        const espelharSenha = () => {
+            // Espelha a digitação da nova senha para o campo 'current-password' (readonly)
+            currentPasswordField.value = newPasswordField.value; 
+        };
+
+        newPasswordField.addEventListener('input', espelharSenha);
+        if (confirmPasswordField) {
+             confirmPasswordField.addEventListener('input', espelharSenha);
+        }
+    }
+
+
+    // 3. SUBMISSÃO DO FORMULÁRIO
+    const formTrocarSenha = document.getElementById('form-trocar-senha');
+    if (formTrocarSenha) {
+        formTrocarSenha.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const novaSenha = document.getElementById('new-password').value;
+            const confirmarSenha = document.getElementById('confirm-new-password').value;
+            
+            if (novaSenha !== confirmarSenha) {
+                alert("As novas senhas não coincidem."); // Usando alert temporariamente, pois o Toast não foi solicitado
+                return;
+            }
+
+            // *** AQUI VOCÊ DEVE ENVIAR OS DADOS PARA O SEU SERVIDOR ***
+            console.log("Submetendo para troca de senha...");
+            
+            // Se for sucesso, feche o modal:
+            // closeModal('modal-trocar-senha'); 
+            alert("Sucesso na simulação!");
+        });
+    }
+});
