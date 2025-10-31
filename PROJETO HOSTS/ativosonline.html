@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosts | Ativos Online</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+</head>
+<body class="page-ativos-online">
+    
+    <button class="botao-menu"><i class="fa-solid fa-bars"></i></button>
+    <nav class="menu-lateral">
+        <div class="conta-item"><a href="configuracoes.html"><i class="bi bi-person-circle"></i><b>Conta</b></a></div>
+        <ul>
+            <li><a href="home.html"><i class="bi bi-house-door-fill"></i><b>Home</b></a></li>
+            <li><a href="dashboard.html"><i class="bi bi-graph-up"></i><b>Dashboard</b></a></li>
+            <li><a href="ativosonline.html" class="active"><i class="bi bi-check-circle-fill"></i><b>Ativos Online</b></a></li>
+            <li><a href="ativosnarede.html"><i class="bi bi-hdd-stack-fill"></i><b>Inventário</b></a></li>
+            <li><a href="configuracoes.html"><i class="bi bi-gear-fill"></i><b>Configurações</b></a></li>
+        </ul>
+        <div class="logout-item"><a href="login/login.html"><i class="bi bi-box-arrow-left"></i><b>Logout</b></a></div>
+    </nav>
+    <div class="background"></div>
+    
+    <main class="conteudo">
+
+        <div class="page-header">
+            <div>
+                <h1>Ativos Online</h1>
+                <p>Lista de todos os dispositivos atualmente online na sua rede.</p>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="assetSearch" placeholder="Pesquisar por nome, ID ou status...">
+        </div>
+
+        <div class="table-wrapper">
+            <table class="inventory-table">
+                <thead>
+    <tr>
+        <th>Nome do Ativo</th>
+        <th>Endereço Mac</th> <th>Identificador (ID/IP)</th>
+        <th>Status</th>
+        <th>Condição</th>
+        <th>Ações</th> 
+    </tr>
+</thead>
+                <tbody id="online-assets-tbody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+    <script src="js/assets.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+    /**
+     * Função para desenhar as linhas na tabela (APENAS ONLINE)
+     */
+    function populateTable(assetsToShow) {
+        // Pega o corpo da tabela onde os ativos online serão mostrados
+        const tableBody = document.getElementById('online-assets-tbody');
+        
+        // Limpa a tabela antes de adicionar novos itens
+        tableBody.innerHTML = ''; 
+
+        // Itera sobre a lista de ativos (que já foi filtrada)
+        assetsToShow.forEach(asset => {
+            
+            // Define a classe da condição (Disponível, Manutenção, Alocado)
+            let conditionClass = '';
+            if (asset.condition === 'Alocado') {
+                conditionClass = 'danger'; // Vermelho
+            } else if (asset.condition === 'Manutenção') { 
+                conditionClass = 'warning'; // Amarelo
+            } else if (asset.condition === 'Disponível') {
+                conditionClass = 'success'; // Verde
+            }
+
+            // Cria uma nova linha <tr>
+            const tr = document.createElement('tr');
+            
+            // Define o HTML da linha, incluindo a nova coluna "macAddress"
+            tr.innerHTML = `
+                <td>${asset.assetName}</td>
+                <td>${asset.macAddress || 'N/A'}</td> <td>${asset.assetId}</td>
+                <td class="success">${asset.status}</td> <td class="${conditionClass}">${asset.condition}</td>
+                <td class="action-icons">
+                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-trash"></i>
+                </td>
+            `;
+            // Adiciona a linha à tabela
+            tableBody.appendChild(tr);
+        });
+    }
+
+    /**
+     * Roda quando a página carregar
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+        // Verifica se a lista 'Assets' (do assets.js) existe
+        if (typeof Assets !== 'undefined') {
+            
+            // 1. FILTRA a lista para mostrar APENAS "Online"
+            const onlineAssets = Assets.filter(asset => asset.status === 'Online');
+            
+            // 2. Chama a função para popular a tabela com a lista filtrada
+            populateTable(onlineAssets);
+
+            // 3. Adiciona funcionalidade de pesquisa
+            const searchInput = document.getElementById('assetSearch');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    
+                    // Filtra A PARTIR da lista de ativos online
+                    const filteredAssets = onlineAssets.filter(asset => 
+                        (asset.assetName && asset.assetName.toLowerCase().includes(searchTerm)) ||
+                        (asset.macAddress && asset.macAddress.toLowerCase().includes(searchTerm)) ||
+                        (asset.assetId && asset.assetId.toLowerCase().includes(searchTerm))
+                    );
+                    // Redesenha a tabela com os resultados da busca
+                    populateTable(filteredAssets);
+                });
+            }
+        } else {
+            console.error("A lista 'Assets' não foi encontrada. Verifique se 'js/assets.js' está sendo carregado corretamente.");
+        }
+    });
+</script>
+    </body>
+</html>
