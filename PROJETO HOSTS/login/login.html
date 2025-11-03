@@ -6,6 +6,7 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="css/login.css">
     <title>Hosts | Login</title>
+    <script src="js/password-toggle.js" defer></script>
 </head>
 <body>
     <main class="container">
@@ -19,6 +20,7 @@
             <div class="input-box">
                 <input id="login-password" placeholder="Senha" type="password" required>
                 <i class="bx bxs-lock-alt"></i>
+                <i id="toggle-password" class="bx bx-hide" style="position: absolute; right: 40px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="togglePasswordVisibility('login-password', 'toggle-password')"></i>
             </div>
             <div class="remember-forgot">
                 <label>
