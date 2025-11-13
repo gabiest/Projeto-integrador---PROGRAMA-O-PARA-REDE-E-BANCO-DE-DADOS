@@ -30,12 +30,24 @@
     <main class="conteudo">
 
         <div class="page-header">
-            <div>
-                <h1>Ativos Online</h1>
-                <p>Lista de todos os dispositivos atualmente online na sua rede.</p>
+    
+
+    <div>
+        <h1>Ativos Online</h1>
+        <p>Lista de todos os dispositivos atualmente online na sua rede.</p>
+    </div>
+
+    <div class="botoes-header">
+        
+        <button class="btn-add" id="refresh-btn-online" onclick="carregarAtivosOnline()">
+            <i class="bi bi-arrow-clockwise"></i> Atualizar <!-- ALTERADO -->
+        </button>
+        
+    </div>
+    
+</div>
             </div>
         </div>
-
         <div class="search-container">
             <i class="bi bi-search"></i>
             <input type="text" id="assetSearch" placeholder="Pesquisar por nome, ID ou status...">

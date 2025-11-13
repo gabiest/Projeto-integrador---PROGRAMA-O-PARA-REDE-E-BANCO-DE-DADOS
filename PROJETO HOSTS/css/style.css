@@ -2236,5 +2236,51 @@ main.welcome-screen.ativo {
     transform:scale(0.95);
 }
 
+/* --- CLASSE ESSENCIAL PARA ALINHAR OS DOIS BOTÕES LADO A LADO --- */
+.asset-actions-header {
+    display: flex; /* Habilita o alinhamento horizontal */
+    gap: 10px; /* Espaço entre os botões */
+}
+
+/* --- ESTILO BASE PARA O NOVO BOTÃO 'ATUALIZAR' (Outline Roxo) --- */ 
+.botao-secundario {
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    
+    /* Cores usando suas variáveis: */
+    background-color: white; 
+    color: var(--quarto-color); 
+    border: 1px solid var(--quarto-color); 
+}
+
+.botao-secundario:hover {
+    background-color: #f0e6fa; 
+    box-shadow: 0 2px 5px rgba(144, 57, 212, 0.2);
+}
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.botoes-header {
+    display: flex;
+    gap: 10px; /* Espaço entre os botões */
+}
+
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
 
 
