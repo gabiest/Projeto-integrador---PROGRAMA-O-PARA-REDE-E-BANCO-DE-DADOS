@@ -2064,7 +2064,7 @@ body:has(main.welcome-screen) {
 .btn-confirm-delete:hover { background: #c62828; box-shadow: 0 4px 10px rgba(255, 119, 130, 0.4); }
 
 /* Estilos para Notificações Toast (ajustar cores) */
-#toast-container { /* Posição */ }
+
 .toast {
     background-color: var(--sexto-color); /* Fundo roxo */
     color: white;
@@ -2282,5 +2282,153 @@ main.welcome-screen.ativo {
 }
 
 
+/* ======================================================= */
+/* === INÍCIO DAS CORREÇÕES DE RESPONSIVIDADE === */
+/* Cole este bloco no FINAL do seu arquivo style.css */
+/* ======================================================= */
+
+/* --- 1. CORREÇÃO DO MENU LATERAL (Para telas curtas) --- */
+/* Adiciona rolagem vertical ao menu se o conteúdo for maior que a tela */
+.menu-lateral {
+overflow-y: auto;
+z-index: 1000;
+}
+.botao-menu {
+    z-index: 1002; /* Botão acima de tudo */
+}
+.background {
+z-index: 999; /* Overlay entre o menu e o conteúdo */
+}
 
 
+/* --- 2. CORREÇÃO DA PÁGINA HOME (Desktop e Mobile) --- */
+
+/* Ajuste para Desktop (como sua tela de 1300px) */
+/* Força a imagem a se comportar dentro do flexbox em vez de flutuar */
+.circle-image {
+position: relative !important; /* Remove o 'position: absolute' problemático */
+width: 45vw; /* Largura baseada no tamanho da tela */
+height: 45vw;
+max-width: 550px; /* Limite máximo de tamanho */
+max-height: 550px;
+right: auto; /* Reseta o posicionamento */
+top: auto; /* Reseta o posicionamento */
+transform: none; /* Reseta o posicionamento */
+background-position: center;
+margin-left: 2rem; /* Adiciona um espaço da borda */
+}
+
+.hero-right {
+flex: none; /* Container da imagem usa o tamanho da imagem */
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.hero-left {
+flex: 1; /* Container do texto ocupa o espaço restante */
+}
+.hero-title {
+font-size: 4rem; /* Um pouco menor para caber melhor */
+}
+
+
+/* --- 3. LOGO FLUTUANTE (Novo Recurso) --- */
+/* Esconde a logo por padrão */
+.logo-bottom-right {
+display: none;
+}
+
+/* Mostra a logo APENAS na página de boas-vindas */
+body:has(main.welcome-screen) .logo-bottom-right {
+display: block;
+position: fixed;
+bottom: 25px;
+right: 25px;
+width: 150px; /* Ajuste o tamanho conforme necessário */
+height: auto;
+z-index: 1001; /* Acima do conteúdo e overlay */
+opacity: 0.7;
+transition: opacity 0.3s ease;
+}
+body:has(main.welcome-screen) .logo-bottom-right:hover {
+opacity: 1;
+}
+
+
+/* --- 4. CORREÇÃO GERAL (Telas Pequenas / Mobile) --- */
+/* Para telas menores que 768px */
+@media screen and (max-width: 768px) {
+
+   
+    .menu-lateral {
+width: 280px;
+left: -280px; 
+ }
+
+  
+.conteudo {
+margin-left: 0 !important; /* Reseta a margem */
+padding: 20px;
+padding-top: 80px; /
+}
+    
+    .conteudo.ativo {
+ margin-left: 0 !important; }
+
+    
+    .botao-menu.ativo {
+left: 20px; 
+ }
+
+ .hero-title {
+font-size: 2.5rem;
+ }
+
+ }
+
+
+ /* ======================================================= */
+/* === CORREÇÃO DO MENU LATERAL (LAYOUT FLEX) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Transforma o menu em um container flexível de coluna */
+.menu-lateral {
+    display: flex;
+    flex-direction: column;
+    /* Remove a rolagem do menu principal (ela vai para a lista) */
+    overflow-y: hidden;
+}
+
+/* 2. Sobrescreve a margem gigante da "Conta" */
+.conta-item {
+    margin-bottom: 30px;
+}
+
+/* 3. Faz a lista de links (Home, Dashboard...) crescer e rolar */
+.menu-lateral ul {
+    flex-grow: 1; /* Faz a lista ocupar todo o espaço do meio */
+    overflow-y: auto; /* Adiciona rolagem SÓ nesta lista */
+}
+
+/* 4. Tira o "Logout" da posição absoluta */
+.logout-item {
+    position: relative; /* Sobrescreve o 'absolute' anterior */
+    bottom: auto; /* Sobrescreve o 'bottom: 0' anterior */
+}
+
+/* ======================================================= */
+/* === OCULTAR BARRA DE ROLAGEM DO MENU === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* Esconde a barra de rolagem no Firefox e IE/Edge */
+.menu-lateral ul {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Esconde a barra de rolagem no Chrome, Safari e Edge */
+.menu-lateral ul::-webkit-scrollbar {
+    display: none;
+}
