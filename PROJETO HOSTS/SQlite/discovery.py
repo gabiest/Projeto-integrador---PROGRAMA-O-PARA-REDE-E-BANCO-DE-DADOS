@@ -9,10 +9,9 @@ from getmac import get_mac_address
 
 # --- Configurações CRÍTICAS ---
 DB_FILE = 'meu_banco.db' 
-TARGET_NETWORK = '192.168.0.0/24' 
+# ATUALIZADO PARA A REDE DO SENAC:
+TARGET_NETWORK = '10.135.154.0/24' 
 # ------------------------------
-
-# ... (As funções conectar(), netbios_lookup(), get_best_name(), get_os_guess() permanecem exatamente as mesmas) ...
 
 def conectar():
     """Conecta ao banco de dados."""
@@ -40,28 +39,31 @@ def netbios_lookup(ip_address):
         pass 
     return None
 
-def get_best_name(ip, nm_host_data):
+def get_best_name(ip, nm_detail_data):
     """Tenta obter o Nome (NetBIOS ou Nmap) ou usa um genérico."""
     netbios_name = netbios_lookup(ip)
     if netbios_name:
         return netbios_name
     
-    if 'hostnames' in nm_host_data:
-        for h in nm_host_data['hostnames']:
-            name = h.get('name')
-            if name and name != 'localhost':
-                return name
+    # Tenta o nome do Nmap (Plano B)
+    try:
+        if nm_detail_data and 'hostnames' in nm_detail_data:
+            for h in nm_detail_data['hostnames']:
+                name = h.get('name')
+                if name and name != 'localhost':
+                    return name
+    except Exception: pass
 
     return f"Dispositivo-{ip.split('.')[-1]}" 
 
-def get_os_guess(nm_host_data):
+def get_os_guess(nm_detail_data):
     """Extrai a melhor estimativa de OS do resultado do Nmap."""
     try:
-        if 'osmatch' in nm_host_data and nm_host_data['osmatch']:
-            return nm_host_data['osmatch'][0]['name']
+        if nm_detail_data and 'osmatch' in nm_detail_data and nm_detail_data['osmatch']:
+            return nm_detail_data['osmatch'][0]['name']
     except Exception:
         pass
-    return "OS Desconhecido"
+    return "OS Bloqueado" # Nome profissional para falha de OS
 
 # --- FUNÇÃO PRINCIPAL ATUALIZADA ---
 
@@ -70,66 +72,71 @@ def discover_and_add_assets():
     Executa um scan OTIMIZADO em 2 Etapas:
     1. Ping Scan Rápido (para achar IPs vivos)
     2. OS Scan Lento (APENAS nos IPs vivos)
+    3. Salva TODOS os IPs da Etapa 1, enriquecidos com dados da Etapa 2
     """
-    nm = nmap.PortScanner()
+    nm_fast = nmap.PortScanner() # Scanner para Etapa 1
+    nm_detail = nmap.PortScanner() # Scanner para Etapa 2
     
     # -----------------------------------------------------------------
     # ETAPA 1: ACHAR HOSTS VIVOS (RÁPIDO)
     # -----------------------------------------------------------------
-    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] OTIMIZAÇÃO (1/2): Buscando hosts ativos (Ping Scan)...")
+    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] OTIMIZAÇÃO (1/3): Buscando hosts ativos (Ping Scan) em {TARGET_NETWORK}...")
     try:
-        nm.scan(hosts=TARGET_NETWORK, arguments='-sn -T4')
+        nm_fast.scan(hosts=TARGET_NETWORK, arguments='-sn -T4')
         print("Scan Rápido concluído.")
     except nmap.PortScannerError as e:
         print(f"ERRO CRÍTICO DO NMAP (Etapa 1): {e}")
         return
 
-    live_hosts_ips = nm.all_hosts()
+    live_hosts_ips = nm_fast.all_hosts()
     if not live_hosts_ips:
         print("Nenhum host ativo encontrado na rede.")
         return
         
     print(f"Encontrados {len(live_hosts_ips)} hosts ativos. IPs: {live_hosts_ips}")
-    live_hosts_str = ' '.join(live_hosts_ips) # Converte a lista de IPs para uma string
+    live_hosts_str = ' '.join(live_hosts_ips) 
 
     # -----------------------------------------------------------------
     # ETAPA 2: BUSCAR DETALHES (OS/NOME) APENAS DOS HOSTS VIVOS
     # -----------------------------------------------------------------
-    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] OTIMIZAÇÃO (2/2): Buscando OS/Detalhes dos hosts ativos...")
+    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] OTIMIZAÇÃO (2/3): Buscando OS/Detalhes dos hosts ativos (pode demorar)...")
     try:
-        # Roda o scan lento (-sV -O) APENAS nos IPs que responderam
-        nm.scan(hosts=live_hosts_str, arguments='-sV -O -T4')
-        print("Scan Detalhado concluído. Processando e salvando no banco...")
+        nm_detail.scan(hosts=live_hosts_str, arguments='-sV -O -T4')
+        print("Scan Detalhado concluído.")
     except nmap.PortScannerError as e:
         print(f"ERRO CRÍTICO DO NMAP (Etapa 2): {e}")
-        return
+        # Mesmo se a Etapa 2 falhar, continuamos para salvar os dados da Etapa 1
+        pass 
 
     # -----------------------------------------------------------------
-    # ETAPA 3: PROCESSAR E SALVAR NO BANCO
+    # ETAPA 3: PROCESSAR E SALVAR NO BANCO (LÓGICA CORRIGIDA)
     # -----------------------------------------------------------------
+    print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] OTIMIZAÇÃO (3/3): Processando e salvando TODOS os {len(live_hosts_ips)} hosts no banco...")
+    
     conexao = conectar()
     cursor = conexao.cursor()
     data_hora_atual = datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
 
-    for host in nm.all_hosts(): # O 'nm' agora só contém os hosts vivos detalhados
+    # *** A LÓGICA CORRIGIDA: Iteramos pela lista da ETAPA 1 (os 21 hosts) ***
+    for ip_address in live_hosts_ips: 
         
-        ip_address = host
-        mac_address = nm[host]['addresses'].get('mac', 'N/A') 
-        nm_host_data = nm[host]
+        # Pega os dados básicos da Etapa 1 (nm_fast)
+        mac_address = nm_fast[ip_address]['addresses'].get('mac', 'N/A') 
         
-        if ip_address == TARGET_NETWORK.split('/')[0]:
-             continue 
-             
+        # Tenta pegar os dados detalhados da Etapa 2 (nm_detail)
+        # Se o host foi bloqueado (AP Isolation), nm_host_data será None
+        nm_host_data = nm_detail[ip_address] if ip_address in nm_detail.all_hosts() else None
+
         # --- CORREÇÃO PARA O MAC LOCAL ---
         if mac_address == 'N/A':
             mac_local = get_mac_address(ip=ip_address)
             if mac_local:
                 mac_address = mac_local.upper()
         
-        # 1. Resolve o nome (Plano A, B, C)
+        # 1. Resolve o nome (usa dados da Etapa 2 se disponíveis)
         nome_base = get_best_name(ip_address, nm_host_data)
         
-        # 2. Resolve o OS
+        # 2. Resolve o OS (usa dados da Etapa 2 se disponíveis)
         sistema_op = get_os_guess(nm_host_data)
         
         # 3. COMBINA OS DOIS NA COLUNA NOME
@@ -146,7 +153,7 @@ def discover_and_add_assets():
             cursor.execute(
                 """INSERT INTO ativos_online (nome, ip_address, mac_address, status, condicao, data_inicio) 
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                (nome_ativo_final, ip_address, mac_address, 'Online', 'Descoberto', data_hora_atual)
+                (nome_ativo_final, ip_address, mac_address, 'Online', '', data_hora_atual)
             )
         else:
             cursor.execute(
@@ -156,7 +163,7 @@ def discover_and_add_assets():
             
     conexao.commit()
     conexao.close()
-    print("\nDiscovery Otimizado finalizado. Tabela atualizada com Nomes e Sistemas Operacionais.")
+    print(f"\nDiscovery Otimizado finalizado. {len(live_hosts_ips)} hosts processados e salvos.")
 
 if __name__ == "__main__":
     discover_and_add_assets()
