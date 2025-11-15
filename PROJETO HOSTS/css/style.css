@@ -917,17 +917,18 @@ body {
 
 /* --- PÁGINA HOME --- */
 
+/* SUBSTITUA POR ISTO: */
 main.welcome-screen {
- margin-left: 60px; /* Remove margem do menu lateral na home */
- padding: 0;
- height: 100vh;
- display: flex; /* Necessário para centralizar o hero */
- align-items: center;
- justify-content: center; /* Centraliza o conteúdo */
- position: relative;
- overflow: hidden;
+margin-left: 0; /* Home page é full-width */
+padding: 0;
+height: 100vh;
+display: flex; 
+align-items: center;
+justify-content: center; 
+position: relative;
+overflow: hidden;
+transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* <-- ADICIONE ISSO */
 }
-
 /* Container principal do banner */
 .hero {  
  display: flex;
@@ -935,6 +936,7 @@ main.welcome-screen {
  width: 90%; /* Ajusta a largura total */ 
  max-width: 1300px; /* Limita a largura máxima */
  z-index: 2;
+ position: relative;
 }
 
 /* Lado esquerdo (texto e botão) */
@@ -1000,11 +1002,6 @@ main.welcome-screen {
  right: 188px; /* Encosta ele na direita do pai relativo */
  top: 50%;  /* Pode ajustar o top conforme necessário */
  transform: translateY(-50%);
-}
-
-/* Garante que o conteúdo ocupe toda a largura na home */
-body:has(main.welcome-screen) main.welcome-screen {
- margin-left: 0 !important; /* Sobrescreve a margem padrão */
 }
 
 
@@ -1151,25 +1148,38 @@ body:has(main.welcome-screen) {
   overflow: hidden;
 }
 
-/* Logo fixa no canto superior esquerdo */
+/* ======================================================= */
+/* === CORREÇÃO DA LOGO-TOP-LEFT PARA MOVER COM A TELA === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Reseta a posição da logo e a torna parte da página */
 .logo-top-left {
-  position: fixed;   /* Fica fixa enquanto rola a página */
-  top: 20px;         /* Distância do topo */
-  left: 464px;        /* Distância da esquerda */
-  width: 300px;      /* Ajuste o tamanho da sua logo */
-  height: auto;      /* Mantém proporção */
-  z-index: 20;      /* Acima de outros elementos */
+    position: relative; /* Remove o 'fixed' */
+    width: 250px; /* Define um tamanho novo (ajuste se quiser) */
+    height: auto;
+    
+    /* Reseta todas as regras de 'fixed' */
+    top: auto;
+    left: auto;
+    z-index: auto;
+    
+    /* Reseta a animação que não é mais necessária */
+    opacity: 1;
+    transform: none;
+    animation: none;
+
+    /* Adiciona espaço abaixo da logo */
+    margin-bottom: 1.5rem; 
 }
 
-/* Ajuste responsivo para telas menores */
-@media screen and (max-width: 992px) {
-  .logo-top-left {
-    width: 80px;     /* Reduz tamanho em mobile */
-    top: 15px;
-    left: 15px;
-  }
-  }
-
+/* 2. Em telas pequenas, ajusta a logo */
+@media (max-width: 992px) {
+    .logo-top-left {
+        width: 200px;
+        /* O text-align: center no .hero já vai centralizar ela */
+    }
+}
   /* --- ENTRADA DAS LETRAS (TÍTULO E SUBTÍTULO) --- */
 .hero-title, .hero-sub {
   opacity: 0;
@@ -2341,7 +2351,7 @@ display: none;
 /* Mostra a logo APENAS na página de boas-vindas */
 body:has(main.welcome-screen) .logo-bottom-right {
 display: block;
-position: fixed;
+position: absolute;
 bottom: 25px;
 right: 25px;
 width: 150px; /* Ajuste o tamanho conforme necessário */
@@ -2432,3 +2442,153 @@ font-size: 2.5rem;
 .menu-lateral ul::-webkit-scrollbar {
     display: none;
 }
+
+
+
+/* ======================================================= */
+/* === DIMINUI BOTÕES PARA CABER EM TELAS CURTAS === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* Estas regras só ativam se a ALTURA do navegador for 800px ou menor */
+@media (max-height: 800px) {
+
+    /* 1. Ajusta o item "Conta" */
+    .conta-item {
+        padding: 15px 25px; /* Menos espaçamento vertical */
+        margin-bottom: 20px; /* Menos margem */
+    }
+
+    .conta-item a {
+        font-size: 18px; /* Fonte menor */
+        gap: 15px; /* Menos espaço entre ícone e texto */
+    }
+
+    .conta-item a i {
+        font-size: 40px; /* Ícone menor */
+    }
+
+    /* 2. Ajusta os links do meio (Home, Dashboard, etc.) */
+    .menu-lateral ul li {
+        padding: 15px 25px; /* Menos espaçamento vertical */
+    }
+
+    .menu-lateral ul li a {
+        font-size: 18px; /* Fonte menor */
+        gap: 15px; /* Menos espaço entre ícone e texto */
+    }
+
+    .menu-lateral ul li a i {
+        font-size: 22px; /* Ícone menor */
+    }
+
+    /* 3. Ajusta o item "Logout" */
+    .logout-item a {
+        padding: 15px 25px; /* Menos espaçamento vertical */
+        font-size: 18px; /* Fonte menor */
+        gap: 15px; /* Menos espaço entre ícone e texto */
+    }
+}
+
+/* ======================================================= */
+/* === ANIMAÇÃO DO CONTEÚDO DA PÁGINA DE CONFIGURAÇÕES === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* Ajusta a transição e posição do container de conteúdo */
+.conteudo-configuracoes {
+    transition: margin-left 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    margin-left: 0; /* Posição inicial sem o menu aberto */
+    padding-left: 30px; /* Adiciona um padding para o conteúdo não colar na borda */
+    padding-right: 30px; /* Padding na direita também */
+}
+
+/* Quando o menu está ativo, empurra o conteúdo da página para o lado */
+.menu-lateral.ativo + .main-content .configuracoes-screen .conteudo-configuracoes {
+    margin-left: 300px; /* Deve ser o mesmo valor da largura do seu menu */
+}
+
+/* Para telas menores que 991px, o conteúdo volta para a posição inicial */
+@media screen and (max-width: 991px) {
+    .conteudo-configuracoes {
+        margin-left: 0; /* Volta para 0 em telas pequenas */
+    }
+}
+
+/* ======================================================= */
+/* === AJUSTE ESPAÇAMENTO PÁGINA CONFIGURAÇÕES === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* Adiciona um espaço acima do cartão de usuário */
+.configuracoes-wrapper {
+    margin-top: 4rem; /* Ajuste este valor (ex: 4rem) se quiser mais espaço */
+}
+
+/* ======================================================= */
+/* === CORREÇÃO DE ANIMAÇÃO DA HOME E LOGOS === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Corrige a Home (adiciona transição e reseta margem) */
+main.welcome-screen {
+    margin-left: 0; /* Garante que começa em tela cheia */
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* 2. Força a Home a se mover quando o menu está ativo */
+/* Esta regra é mais específica e vence a regra antiga com !important */
+body:has(main.welcome-screen) main.welcome-screen.ativo {
+    margin-left: 300px !important;
+}
+
+/* 3. Reseta a logo do topo (.logo-top-left) */
+/* (Isto assume que seu HTML está com a logo dentro do .hero-left) */
+.logo-top-left {
+    position: relative; /* Remove o 'fixed' */
+    width: 250px;
+    height: auto;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    opacity: 1;
+    transform: none;
+    animation: none;
+    margin-bottom: 1.5rem;
+}
+
+/* 4. Ajusta a logo do topo em telas pequenas */
+@media (max-width: 992px) {
+    .logo-top-left {
+        width: 200px;
+    }
+}
+
+/* 5. Garante que o .hero é a âncora para a logo "deitado" */
+.hero {
+    position: relative;
+}
+
+/* 6. Prende a logo "deitado" (.logo-bottom-right) no canto */
+/* (Isto assume que seu HTML está com a logo dentro do .hero) */
+.hero .logo-bottom-right {
+    display: block;
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 150px;
+    height: auto;
+    z-index: 10;
+    opacity: 0.7;
+}
+
+.hero .logo-bottom-right:hover {
+    opacity: 1;
+}
+
+.hero-left {
+    /* Adiciona um preenchimento na parte de baixo do bloco da esquerda. */
+    /* Isso força o 'align-items: center' a empurrar o bloco para cima. */
+    padding-bottom: 30vh; /* Experimente 10vh. Mude para '15vh' se quiser mais para cima. */
+}
+
