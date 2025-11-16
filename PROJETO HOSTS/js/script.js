@@ -212,29 +212,32 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         // --- FUNÇÕES DE BUSCA DE DADOS DA API ---
-        
-        async function carregarEstatisticas() {
-            try {
-                const response = await fetch('/api/estatisticas');
-                if (!response.ok) throw new Error('Falha ao buscar estatísticas');
-                const stats = await response.json();
+       async function carregarEstatisticas() { 
+       try {
+                const response = await fetch('/api/estatisticas');
+                if (!response.ok) throw new Error('Falha ao buscar estatísticas');
+                const stats = await response.json();
+                
+                // Calcular disponibilidade
+                let disponibilidade = 0.0;
+                if (stats.total_ativos > 0) {
+                    disponibilidade = (stats.ativos_online / stats.total_ativos * 100);
+                }
                 
-                // Calcular disponibilidade
-                let disponibilidade = 0.0;
-                if (stats.total_ativos > 0) {
-                    disponibilidade = (stats.ativos_online / stats.total_ativos * 100);
-                }
-                
-                // Animar os valores dos KPIs
-                animateCountUp('availability-value', disponibilidade, 1500, 1, '%');
-                animateCountUp('online-assets-dash', stats.ativos_online, 1500, 0, '');
-                // (Não temos 'alertas criticos' na API ainda, então deixamos 0)
-                animateCountUp('critical-alerts-count', 0, 1500, 0, ''); 
-                
-            } catch (error) {
-                console.error("Erro ao carregar KPIs:", error);
-            }
-        }
+                /* === ADICIONE ESTA LINHA === */
+                const ativos_offline = stats.total_ativos - stats.ativos_online;
+                
+                // Animar os valores dos KPIs
+                animateCountUp('availability-value', disponibilidade, 1500, 1, '%');
+                animateCountUp('online-assets-dash', stats.ativos_online, 1500, 0, '');
+
+                /* === MUDE ESTA LINHA === */
+                animateCountUp('offline-assets-count', ativos_offline, 1500, 0, ''); 
+                
+            } catch (error) {
+                console.error("Erro ao carregar KPIs:", error);
+             }
+}
         
         async function carregarDadosDosGraficos() {
              try {

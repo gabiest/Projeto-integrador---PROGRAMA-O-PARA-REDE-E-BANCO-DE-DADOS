@@ -165,12 +165,11 @@ body {
     margin-left: 60px;
     padding: 40px;
     color: var(--oitavo-color);
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    transform: translateX(300px);
 }
 
-.conteudo.ativo {
-    margin-left: 360px;
-}
+
 
 .conteudo h1 {
     font-size: 2rem;
@@ -915,20 +914,7 @@ body {
     }
 }
 
-/* --- PÁGINA HOME --- */
 
-/* SUBSTITUA POR ISTO: */
-main.welcome-screen {
-margin-left: 0; /* Home page é full-width */
-padding: 0;
-height: 100vh;
-display: flex; 
-align-items: center;
-justify-content: center; 
-position: relative;
-overflow: hidden;
-transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* <-- ADICIONE ISSO */
-}
 /* Container principal do banner */
 .hero {  
  display: flex;
@@ -1070,7 +1056,7 @@ transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* <-- ADICIONE ISSO
 
 /* Garante que o conteúdo principal das páginas internas (não Home) se mova ao abrir o menu */
 .conteudo.ativo {
- margin-left: 360px;
+transform: translateX(300px);
 }
 
 /* Garante que na Home, o conteúdo interno fique escondido, como antes */
@@ -1105,19 +1091,6 @@ body:has(main.welcome-screen) section.home {
  .hero-sub {
   font-size: 1rem;
  }
-}
-
-/* Conteúdo Principal */
-.conteudo {
- margin-left: 60px; /* Posição padrão (menu fechado) */
- padding: 40px;
- color: var(--oitavo-color);
- transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-
-
-.conteudo.ativo {
- margin-left: 360px; /* Posição quando o menu está aberto (300px do menu + 60px de margem inicial) */
 }
 
 
@@ -2152,8 +2125,7 @@ body:has(main.welcome-screen) {
 /* ======================================================= */
 
 main.welcome-screen.ativo {
-    margin-left: 300px; /* (Use a largura exata do seu menu) */
-    /* Garante que o conteúdo não seja selecionável quando o menu estiver aberto */
+    transform: translateX(300px);
     pointer-events: none;
     user-select: none;
 }
@@ -2450,45 +2422,52 @@ font-size: 2.5rem;
 /* Cole este bloco no FINAL do seu style.css */
 /* ======================================================= */
 
-/* Estas regras só ativam se a ALTURA do navegador for 800px ou menor */
-@media (max-height: 800px) {
+/* Estas regras só ativam se a ALTURA do navegador for 700px ou menor */
+@media (max-height: 700px) {
 
-    /* 1. Ajusta o item "Conta" */
-    .conta-item {
-        padding: 15px 25px; /* Menos espaçamento vertical */
-        margin-bottom: 20px; /* Menos margem */
-    }
+   /* ======================================================= */
+/* === AJUSTE DE TAMANHO (UM POUCO MAIOR) DOS BOTÕES DO MENU === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
 
-    .conta-item a {
-        font-size: 18px; /* Fonte menor */
-        gap: 15px; /* Menos espaço entre ícone e texto */
-    }
-
-    .conta-item a i {
-        font-size: 40px; /* Ícone menor */
-    }
-
-    /* 2. Ajusta os links do meio (Home, Dashboard, etc.) */
-    .menu-lateral ul li {
-        padding: 15px 25px; /* Menos espaçamento vertical */
-    }
-
-    .menu-lateral ul li a {
-        font-size: 18px; /* Fonte menor */
-        gap: 15px; /* Menos espaço entre ícone e texto */
-    }
-
-    .menu-lateral ul li a i {
-        font-size: 22px; /* Ícone menor */
-    }
-
-    /* 3. Ajusta o item "Logout" */
-    .logout-item a {
-        padding: 15px 25px; /* Menos espaçamento vertical */
-        font-size: 18px; /* Fonte menor */
-        gap: 15px; /* Menos espaço entre ícone e texto */
-    }
+/* 1. Ajusta o item "Conta" */
+.conta-item {
+    padding: 18px 25px; /* Mais espaçamento */
+    margin-bottom: 25px;
 }
+
+.conta-item a {
+    font-size: 20px; /* Fonte maior */
+    gap: 10px; /* Espaço padrão */
+}
+
+.conta-item a i {
+    font-size: 44px; /* Ícone maior */
+}
+
+/* 2. Ajusta os links do meio (Home, Dashboard, etc.) */
+.menu-lateral ul li {
+    padding: 18px 25px; /* Mais espaçamento */
+}
+
+.menu-lateral ul li a {
+    font-size: 20px; /* Fonte maior */
+    gap: 10px; /* Espaço padrão */
+}
+
+.menu-lateral ul li a i {
+    font-size: 24px; /* Ícone maior */
+}
+
+/* 3. Ajusta o item "Logout" */
+.logout-item a {
+    padding: 18px 25px; /* Mais espaçamento */
+    font-size: 20px; /* Fonte maior */
+    gap: 10px; /* Espaço padrão */
+}
+
+}
+
 
 /* ======================================================= */
 /* === ANIMAÇÃO DO CONTEÚDO DA PÁGINA DE CONFIGURAÇÕES === */
@@ -2525,62 +2504,7 @@ font-size: 2.5rem;
     margin-top: 4rem; /* Ajuste este valor (ex: 4rem) se quiser mais espaço */
 }
 
-/* ======================================================= */
-/* === CORREÇÃO DE ANIMAÇÃO DA HOME E LOGOS === */
-/* Cole este bloco no FINAL do seu style.css */
-/* ======================================================= */
 
-/* 1. Corrige a Home (adiciona transição e reseta margem) */
-main.welcome-screen {
-    margin-left: 0; /* Garante que começa em tela cheia */
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-
-/* 2. Força a Home a se mover quando o menu está ativo */
-/* Esta regra é mais específica e vence a regra antiga com !important */
-body:has(main.welcome-screen) main.welcome-screen.ativo {
-    margin-left: 300px !important;
-}
-
-/* 3. Reseta a logo do topo (.logo-top-left) */
-/* (Isto assume que seu HTML está com a logo dentro do .hero-left) */
-.logo-top-left {
-    position: relative; /* Remove o 'fixed' */
-    width: 250px;
-    height: auto;
-    top: auto;
-    left: auto;
-    z-index: auto;
-    opacity: 1;
-    transform: none;
-    animation: none;
-    margin-bottom: 1.5rem;
-}
-
-/* 4. Ajusta a logo do topo em telas pequenas */
-@media (max-width: 992px) {
-    .logo-top-left {
-        width: 200px;
-    }
-}
-
-/* 5. Garante que o .hero é a âncora para a logo "deitado" */
-.hero {
-    position: relative;
-}
-
-/* 6. Prende a logo "deitado" (.logo-bottom-right) no canto */
-/* (Isto assume que seu HTML está com a logo dentro do .hero) */
-.hero .logo-bottom-right {
-    display: block;
-    position: absolute;
-    bottom: 25px;
-    right: 25px;
-    width: 150px;
-    height: auto;
-    z-index: 10;
-    opacity: 0.7;
-}
 
 .hero .logo-bottom-right:hover {
     opacity: 1;
@@ -2592,3 +2516,319 @@ body:has(main.welcome-screen) main.welcome-screen.ativo {
     padding-bottom: 30vh; /* Experimente 10vh. Mude para '15vh' se quiser mais para cima. */
 }
 
+/* ======================================================= */
+/* === REMOVER BORDA DE FOCO DO BOTÃO DE MENU === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* Remove o 'outline' (a borda) que aparece depois de clicar no botão */
+.botao-menu:focus {
+    outline: none;
+    box-shadow: none; /* Garante que nenhuma sombra de foco apareça */
+}
+
+
+/* SUBSTITUA POR ISTO: */
+main.welcome-screen {
+margin-left: 0; /* Home page é full-width */
+padding: 0;
+height: 100vh;
+display: flex; 
+align-items: center;
+justify-content: center; 
+position: relative;
+overflow: hidden;
+transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+transform: translateX(0);
+}
+
+/* ======================================================= */
+/* === CORREÇÃO COMPLETA DA ANIMAÇÃO (TRANSFORM) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Esconde a barra de rolagem que o 'transform' cria */
+body {
+    overflow-x: hidden;
+}
+
+/* 2. Prepara a HOME PAGE para animar (começa em 0) */
+main.welcome-screen {
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    transform: translateX(0);
+}
+
+/* 3. Move a HOME PAGE (300px) quando o menu está ativo */
+main.welcome-screen.ativo {
+    transform: translateX(300px);
+}
+
+/* 4. Prepara as OUTRAS PÁGINAS para animar (começa em 0) */
+/* (Elas mantêm a margem de 60px, o transform é separado) */
+.conteudo {
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    transform: translateX(0);
+}
+
+/* 5. Move as OUTRAS PÁGINAS (300px) quando o menu está ativo */
+.conteudo.ativo {
+    transform: translateX(300px);
+}
+
+/* ======================================================= */
+/* === TABELA "LEGAL" (SEM ESTICAR E SEM ROLAR) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Esconde a 5ª coluna ("Condição") em AMBAS as tabelas */
+.inventory-table thead th:nth-child(5),
+.inventory-table tbody td:nth-child(5) {
+    display: none;
+}
+
+/* 2. Remove a barra de rolagem do container da tabela */
+.table-wrapper {
+    overflow-x: hidden;
+}
+
+/* 3. Força a tabela a ter 100% da largura (IMPORTANTE) */
+.inventory-table {
+    min-width: 100%;
+    width: 100%;
+    table-layout: fixed; /* Essencial para ellipsis funcionar */
+}
+
+/* 4. A MÁGICA: Corta o texto com "..." */
+.inventory-table tbody td,
+.inventory-table thead th {
+    white-space: nowrap;    /* Impede o texto de quebrar a linha (evita "esticar") */
+    overflow: hidden;       /* Esconde o texto que vaza */
+    text-overflow: ellipsis; /* Adiciona os "..." */
+}
+
+/* 5. Exceção: Permite que os ícones de Ação apareçam */
+.inventory-table tbody td:nth-child(6) {
+    overflow: visible;
+}
+
+/* ======================================================= */
+/* === TABELA "VER MAIS" (MANTENDO O GRADIENTE ROXO) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Esconde a 5ª coluna ("Condição") */
+.inventory-table thead th:nth-child(5),
+.inventory-table tbody td:nth-child(5) {
+    display: none;
+}
+
+/* 2. Garante que o container da tabela não tenha scroll */
+.table-wrapper {
+    overflow-x: hidden;
+}
+
+/* 3. Força a tabela a ter 100% e define as larguras */
+.inventory-table {
+    min-width: 100%;
+    width: 100%;
+    table-layout: fixed; /* Essencial para o layout */
+}
+
+/* 4. Define as larguras de cada coluna */
+.inventory-table th:nth-child(1), .inventory-table td:nth-child(1) { width: 40%; } /* Nome do Ativo */
+.inventory-table th:nth-child(2), .inventory-table td:nth-child(2) { width: 20%; } /* MAC */
+.inventory-table th:nth-child(3), .inventory-table td:nth-child(3) { width: 15%; } /* ID/IP */
+.inventory-table th:nth-child(4), .inventory-table td:nth-child(4) { width: 10%; } /* Status */
+.inventory-table th:nth-child(6), .inventory-table td:nth-child(6) { width: 15%; } /* Ações */
+
+
+/* 5. A MÁGICA: Permite que SÓ a Coluna 1 quebre a linha (para o "Ver Mais") */
+.inventory-table th:nth-child(1),
+.inventory-table td:nth-child(1) {
+    white-space: normal;  /* Permite quebrar a linha */
+    word-wrap: break-word;
+    overflow: visible; /* Garante que o "ver mais" não seja cortado */
+}
+
+/* 6. Força as OUTRAS colunas (exceto Ações) a usar "..." */
+.inventory-table th:not(:nth-child(1)):not(:nth-child(6)),
+.inventory-table td:not(:nth-child(1)):not(:nth-child(6)) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 7. Exceção: Permite que os ícones de Ação apareçam */
+.inventory-table tbody td:nth-child(6),
+.inventory-table thead th:nth-child(6) {
+    overflow: visible;
+    white-space: nowrap; /* Ações não devem quebrar linha */
+}
+
+/* 8. Estilo do novo botão "Ver Mais" (COM COR CLARA) */
+.see-more-btn {
+    color: var(--text-color); /* Cor do texto branco */
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: underline; /* Sublinhado para parecer link */
+    display: block;
+    margin-top: 5px;
+}
+.see-more-btn:hover {
+    color: var(--success-color); /* Verde claro no hover */
+}
+
+/* ======================================================= */
+/* === CORREÇÃO DA COR VERDE (PÁGINA ATIVOS ONLINE) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/*
+   Esta é a regra que estava faltando.
+   Ela diz para a classe ".badge-online" usar a cor de sucesso.
+*/
+.badge-online {
+    color: var(--success-color);
+}
+
+/* Vamos adicionar as outras por segurança, caso existam */
+.badge-offline {
+    color: var(--danger-color);
+}
+
+.badge-manutencao {
+    color: var(--warning-color);
+}
+
+
+
+.form-group label[for="assetCondition"],
+.form-group select#assetCondition {
+    display: none;
+}
+
+/* ======================================================= */
+/* === AJUSTE DE PROPORÇÃO (ESTREITO E MAIS ALTO) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Mantém o modal ESTREITO (afasta das bordas) */
+.modal-content {
+    max-width: 440px; /* Mantém a largura estreita */
+    
+    /* 2. Aumenta o espaçamento vertical */
+    padding: 1.8rem 1.5rem; /* Mais padding em cima/baixo */
+}
+
+/* 3. Ajusta o título */
+.modal-content h2 {
+    margin-bottom: 1.8rem; /* Mais espaço abaixo do título */
+    font-size: 1.3rem; /* Título de volta ao tamanho normal */
+}
+
+/* 4. Aumenta o espaçamento entre os campos */
+.form-group {
+    margin-bottom: 1.3rem; /* Mais espaço entre os campos */
+}
+
+/* 5. Mantém os labels */
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* 6. Aumenta a altura dos inputs */
+.form-group input,
+.form-group select {
+    padding: 0.8rem 1rem; /* Mais altura nos inputs */
+    font-size: 0.9rem;
+}
+
+/* 7. Aumenta o espaçamento dos botões */
+.modal-actions {
+    margin-top: 1.8rem; /* Mais espaço acima dos botões */
+}
+
+/* 8. Mantém os botões */
+.btn-cancel,
+.btn-save {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+
+/* ======================================================= */
+/* === CUSTOMIZAÇÃO DA BARRA DE ROLAGEM (COM GRADIENTE) === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Para navegadores WebKit (Chrome, Edge, Safari) */
+
+/* Define a largura da barra */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* O "caminho" (fundo) da barra */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* O "botão" (a parte que você arrasta) com o SEU gradiente */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, var(--sexto-color), var(--quinto-color), var(--terciary-color));
+    border-radius: 5px;
+}
+
+/* O "botão" ao passar o mouse (pode ser um gradiente mais claro se quiser) */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, var(--quarto-color), var(--sexto-color), var(--quinto-color));
+}
+
+/* 2. Para Firefox (Não aceita gradiente, usa a cor sólida) */
+html {
+    scrollbar-width: thin;
+    /* [Cor do "botão"] [Cor do "caminho"] */
+    scrollbar-color: var(--sexto-color) #f1f1f1;
+}
+
+/* ======================================================= */
+/* === ESTILOS PARA OCULTAR TABELA E BOTÃO "VER MAIS" === */
+/* Cole este bloco no FINAL do seu style.css */
+/* ======================================================= */
+
+/* 1. Esta classe vai esconder as linhas 11+ */
+.hidden-asset-row {
+    display: none;
+}
+
+/* 2. Estilo do novo botão "Ver Mais" */
+.load-more-btn {
+    display: block; /* Ocupa a própria linha */
+    width: 200px; /* Largura fixa */
+    margin: 1.5rem auto 0 auto; /* Centraliza e dá espaço no topo */
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    /* Visual "fantasma" que combina com seu botão "Atualizar" */
+    background-color: white; 
+    color: var(--sexto-color); 
+    border: 1px solid var(--sexto-color); 
+}
+
+.load-more-btn i {
+    margin-right: 8px; /* Espaço para os "3 pontinhos" */
+}
+
+.load-more-btn:hover {
+    background-color: #f0e6fa; /* Roxo bem claro no hover */
+    box-shadow: 0 2px 5px rgba(144, 57, 212, 0.2);
+    transform: translateY(-2px);
+}
